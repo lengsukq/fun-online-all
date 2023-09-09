@@ -2,7 +2,10 @@
 </script>
 
 <template>
-  <router-view/>
+<!--  <router-link to="/home/hello">hiPage2</router-link>|-->
+<!--  <router-link to="/">Home</router-link>-->
+<!--  <router-link to="/welcome">welcome</router-link>-->
+  <router-view></router-view>
 <!--  <div>-->
 <!--    <a href="https://vitejs.dev" target="_blank">-->
 <!--      <img src="/vite.svg" class="logo" alt="Vite logo" />-->
