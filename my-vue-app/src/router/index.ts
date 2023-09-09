@@ -1,5 +1,5 @@
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
@@ -21,8 +21,8 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import('../components/parentsCom.vue')
             },
             {
-                path: 'towerDefense',
-                component: () => import('../components/towerDefense.vue')
+                path: 'reactive',
+                component: () => import('../components/reactive.vue')
             }
         ]
     },

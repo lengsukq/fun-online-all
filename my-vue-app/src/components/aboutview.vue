@@ -8,10 +8,10 @@
 <script setup lang="ts">
 defineProps({
   title: {
-    type:String,
-    default:'父传子的默认值',
+    type: String,
+    default: '父传子的默认值',
   },
-  num:{
+  num: {
     type: Number,
     default: 0,
   }

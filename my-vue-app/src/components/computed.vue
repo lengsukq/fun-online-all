@@ -4,7 +4,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import {computed, ref} from 'vue'
+
 let price = ref<number | string>(1)//$0
 let mul = computed({
   get: () => {
