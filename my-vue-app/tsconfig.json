@@ -8,6 +8,10 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "typeRoots": [
+      "./types",
+      "./node_modules/vue/types"
+    ],
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "node",
@@ -27,8 +31,8 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "vue.d.ts"
   ],
+  "exclude": ["node_modules"],
   "references": [
     {
       "path": "./tsconfig.node.json"

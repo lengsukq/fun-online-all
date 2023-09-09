@@ -23,6 +23,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'reactive',
                 component: () => import('../components/reactive.vue')
+            },
+            {
+                path: 'setup',
+                component: () => import('../components/setup.vue')
             }
         ]
     },
