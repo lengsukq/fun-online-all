@@ -23,10 +23,10 @@ const props = defineProps({
 const emit = defineEmits(['upDate'])
 //在Vue中子组件不能直接向父组件传值，子组件需要调用父组件传递过来的方法，然后再父组件中通过方法修改值。
 //子组件无法直接修改props数据
-const upData = ()=>{
-  console.log('子组件upDate',props.num)
+const upData = () => {
+  console.log('子组件upDate', props.num)
   // props.value.num ++ ;
-  emit('upDate','新值')
+  emit('upDate', '新值')
 }
 </script>
 

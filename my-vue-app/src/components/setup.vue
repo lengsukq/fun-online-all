@@ -7,11 +7,11 @@ console.log(router.currentRoute.value.params)
 console.log(router.currentRoute.value)
 
 const props = defineProps()
-console.log('props',props)
+console.log('props', props)
 </script>
 
 <template>
-<h3>{{router.currentRoute.value.query}}</h3>
+  <h3>{{ router.currentRoute.value.query }}</h3>
 </template>
 
 <style scoped>

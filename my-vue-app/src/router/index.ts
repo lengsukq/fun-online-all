@@ -31,6 +31,14 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'watch',
                 component: () => import('../components/watch.vue')
+            },
+            {
+                path: 'hook',
+                component: () => import('../components/hook.vue')
+            },
+            {
+                path: 'ref-focus',
+                component: () => import('../components/ref-focus.vue')
             }
         ]
     },
