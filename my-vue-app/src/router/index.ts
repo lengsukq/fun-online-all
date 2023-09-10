@@ -27,6 +27,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'setup',
                 component: () => import('../components/setup.vue')
+            },
+            {
+                path: 'watch',
+                component: () => import('../components/watch.vue')
             }
         ]
     },
