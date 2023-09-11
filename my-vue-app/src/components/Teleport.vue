@@ -1,8 +1,4 @@
 <template>
-  <!--  <button @click="modalOpen = true">-->
-  <!--    Open full screen modal! (With teleport!)-->
-  <!--  </button>-->
-
   <teleport to="body">
     <div v-if="isShow" class="modal">
       <div>
@@ -26,12 +22,10 @@ const props = defineProps({
     default: false
   },
 })
-const {isShow} = toRefs(props)
-console.log('isShow', isShow)
+console.log('isShow', props.isShow)
 const emit = defineEmits(['closeTeleport'])
 console.log('emit', emit)
 const closeTeleportButton = () => {
-  // modalOpen.vlaue = false;
   console.log('子组件closeTeleport')
   emit('closeTeleport', false)
 }
