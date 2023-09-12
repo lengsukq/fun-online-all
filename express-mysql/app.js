@@ -20,7 +20,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 const connection = require('./src/db'); // 获取连接实例
 
-// var app = express()
+//设置允许跨域访问该服务.
+app.all('*', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', '*');
+  res.header('Content-Type', 'application/json;charset=utf-8');
+  next();
+});
 
 app.get('/', (req, res, next) => {
   /* 使用 connection.query 来执行 sql 语句 */

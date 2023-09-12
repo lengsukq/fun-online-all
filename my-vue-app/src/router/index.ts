@@ -62,6 +62,9 @@ const routes: Array<RouteRecordRaw> = [
             },{
                 path:'Teleport',
                 component:()=>import('../components/Teleport.vue')
+            },{
+                path:'axios',
+                component:()=>import('../components/axios.vue')
             }
         ]
     },
