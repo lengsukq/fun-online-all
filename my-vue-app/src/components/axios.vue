@@ -29,6 +29,7 @@
     <el-form-item>
       <el-button type="primary" @click="changeInfoAct">提交</el-button>
       <el-button type="primary" @click="addUserAct">新增</el-button>
+      <el-button type="primary" @click="deleteUserAct">删除</el-button>
 
     </el-form-item>
   </el-form>
@@ -69,6 +70,13 @@ const addUserAct = () => {
   apiHttp.addUser(formLabelAlign).then((res: any) => {
     getInfo();
     console.log('addUserAct', res);
+  })
+}
+
+const deleteUserAct = () => {
+  apiHttp.deleteUser({id:formLabelAlign.id}).then((res: any) => {
+    getInfo();
+    console.log('deleteUserAct', res);
   })
 }
 

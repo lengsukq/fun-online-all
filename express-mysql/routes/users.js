@@ -33,7 +33,7 @@ router.get('/changeUser', function (req, res, next) {
 });
 // 新增用户
 router.post('/addUser', function (req, res, next) {
-    console.log('req', req)
+    console.log('req.body', req.body)
     let data = req.body;
     const sql = `insert into user value(${data.id},'${data.name}','${data.phone}','${data.keywords}')`
     /* 使用 connection.query 来执行 sql 语句 */
@@ -48,4 +48,22 @@ router.post('/addUser', function (req, res, next) {
         }
     })
 });
+// 删除
+router.delete('/deleteUser', function (req, res, next) {
+    console.log('req.body', req.body)
+    let data = req.body;
+    const sql = `delete from user where id=${data.id}`
+    /* 使用 connection.query 来执行 sql 语句 */
+    // 第一个参数为 sql 语句，可以透过 js 自由组合
+    // 第二个参数为回调函数，err 表示查询异常、第二个参数则为查询结果（这里的查询结果为多个用户行）
+    connection?.query(sql, (err, result) => {
+        if (err) {
+            res.send(BizResult.fail(err))
+        } else {
+            // 将 MySQL 查询结果作为路由返回值
+            res.send(BizResult.success(result))
+        }
+    })
+});
+
 module.exports = router;

@@ -23,6 +23,16 @@ const apiHttp = {
             method: 'post',
             data:params
         })
+    },
+    deleteUser(params: any) {
+        return request({
+            url: '/users/deleteUser',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            method: 'delete',
+            data:params
+        })
     }
 }
 
