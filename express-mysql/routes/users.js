@@ -1,10 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../src/db'); // 获取连接实例
+const BizResult = require('../utils/BizResult');
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-    res.send('Users路由文件');
+router.get('/getSUsersInfo', function (req, res, next) {
+
+    connection.query('select * from user', (err, result) => {
+        if (err) {
+            res.send(BizResult.fail(err))
+        } else {
+            // 将 MySQL 查询结果作为路由返回值
+            res.send(BizResult.success(result))
+        }
+    })
 });
 router.get('/changeName', function (req, res, next) {
     console.log('req.query', req.query.name)
@@ -16,10 +25,10 @@ router.get('/changeName', function (req, res, next) {
     // 第二个参数为回调函数，err 表示查询异常、第二个参数则为查询结果（这里的查询结果为多个用户行）
     connection.query(sql, (err, result) => {
         if (err) {
-            res.send(err)
+            res.send(BizResult.fail(err))
         } else {
             // 将 MySQL 查询结果作为路由返回值
-            res.send(result)
+            res.send(BizResult.success(result))
         }
     })
 });

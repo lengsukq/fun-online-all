@@ -3,7 +3,7 @@ import request from "./request";
 const apiHttp = {
     getUniteLoginUrl() {
         return request({
-            url: '/',
+            url: '/users/getSUsersInfo',
             method: 'get',
         })
     },
