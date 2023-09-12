@@ -3,6 +3,16 @@ const router = express.Router();
 const connection = require('../src/db'); // 获取连接实例
 const BizResult = require('../utils/BizResult');
 
+const checkData = (data)=>{
+    for (let item in data){
+        console.log('item',item)
+        if (!data[item]){
+            return false;
+        }
+    }
+    return true;
+}
+
 /* GET users listing. */
 router.get('/getSUsersInfo', function (req, res, next) {
 
@@ -16,8 +26,12 @@ router.get('/getSUsersInfo', function (req, res, next) {
     })
 });
 router.get('/changeUser', function (req, res, next) {
-    console.log('req.query', req.query.name)
-
+    console.log('req.query', req.query)
+    const data = req.query;
+    if (!checkData(data)){
+        res.send(BizResult.fail('请输入完整信息'))
+        return;
+    }
     const sql = `update user set name='${req.query.name}',phone='${req.query.phone}',keywords='${req.query.keywords}' where id=${req.query.id}`
     /* 使用 connection.query 来执行 sql 语句 */
     // 第一个参数为 sql 语句，可以透过 js 自由组合
@@ -40,12 +54,9 @@ router.post('/addUser', function (req, res, next) {
     console.log('req.body', req.body)
     let data = req.body;
 
-    for (let item in data){
-        console.log('item',item)
-        if (!data[item]){
-            res.send(BizResult.fail('请输入完整信息'))
-            return;
-        }
+    if (!checkData(data)){
+        res.send(BizResult.fail('请输入完整信息'))
+        return;
     }
 
     connection?.query(`select count(*) from user where id=${data.id}`, (err, result) => {
@@ -100,7 +111,6 @@ router.delete('/deleteUser', function (req, res, next) {
             }else{
                 res.send(BizResult.success('删除成功'))
             }
-            // 将 MySQL 查询结果作为路由返回值
         }
     })
 });
