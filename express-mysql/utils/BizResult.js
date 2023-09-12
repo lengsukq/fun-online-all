@@ -42,7 +42,6 @@ class BizResult {
      * @return {BizResult}
      */
     static success(data) {
-        console.log('success', new BizResult(BizResultCode.SUCCESS.code, BizResultCode.SUCCESS.desc, data))
         return new BizResult(BizResultCode.SUCCESS.code, BizResultCode.SUCCESS.desc, data);
     }
 

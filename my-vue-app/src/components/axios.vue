@@ -28,6 +28,8 @@
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="changeInfoAct">提交</el-button>
+      <el-button type="primary" @click="addUserAct">新增</el-button>
+
     </el-form-item>
   </el-form>
 </template>
@@ -60,6 +62,13 @@ const changeInfoAct = () => {
   apiHttp.changeInfo(formLabelAlign).then((res: any) => {
     getInfo();
     console.log('changeInfoAct', res);
+  })
+}
+
+const addUserAct = () => {
+  apiHttp.addUser(formLabelAlign).then((res: any) => {
+    getInfo();
+    console.log('addUserAct', res);
   })
 }
 

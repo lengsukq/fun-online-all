@@ -9,9 +9,19 @@ const apiHttp = {
     },
     changeInfo(params: any) {
         return request({
-            url: '/users/changeName',
+            url: '/users/changeUser',
             method: 'get',
             params: params
+        })
+    },
+    addUser(params: any) {
+        return request({
+            url: '/users/addUser',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            method: 'post',
+            data:params
         })
     }
 }

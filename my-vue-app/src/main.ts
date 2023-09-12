@@ -4,8 +4,7 @@ import App from './App.vue';
 import router from "./router";
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
-import Options from "@vitejs/plugin-vue";
 
+console.log(ElementPlus,typeof ElementPlus)
 const app = createApp(App)
-const ele: Options = ElementPlus;
-app.use(ele).use(router).mount('#app');
+app.use(ElementPlus as object).use(router).mount('#app');
