@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {useRouter} from "vue-router";
 // 通过router.currentRoute.value里的参数获取query params路由携带的参数
 const router = useRouter()

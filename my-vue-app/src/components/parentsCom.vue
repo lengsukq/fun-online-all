@@ -1,8 +1,8 @@
 <template>
-  <AboutPage :title="message" :num="num" @upDate="upDate"/>
+  <AboutPage :num="num" :title="message" @upDate="upDate"/>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import AboutPage from './aboutview.vue'
 import {ref} from "vue";
 

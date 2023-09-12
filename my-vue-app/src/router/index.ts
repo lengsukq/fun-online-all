@@ -59,12 +59,12 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'provide-inject',
                 component: () => import('../components/provide-inject.vue')
-            },{
-                path:'Teleport',
-                component:()=>import('../components/Teleport.vue')
-            },{
-                path:'axios',
-                component:()=>import('../components/axios.vue')
+            }, {
+                path: 'Teleport',
+                component: () => import('../components/Teleport.vue')
+            }, {
+                path: 'axios',
+                component: () => import('../components/axios.vue')
             }
         ]
     },

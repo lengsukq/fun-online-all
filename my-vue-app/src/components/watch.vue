@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {reactive, ref, watch, watchEffect} from "vue";
 
 const user = reactive({
@@ -20,9 +20,9 @@ watch([() => user.firstName, () => user.lastName, name], (value) => {
 </script>
 
 <template>
-  <input type="text" v-model="user.firstName"> <br>
-  <input type="text" v-model="user.lastName"> <br>
-  <input type="text" v-model="name"> <br>
+  <input v-model="user.firstName" type="text"> <br>
+  <input v-model="user.lastName" type="text"> <br>
+  <input v-model="name" type="text"> <br>
   <input type="text">
 </template>
 

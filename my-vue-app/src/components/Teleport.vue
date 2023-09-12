@@ -12,9 +12,9 @@
   </teleport>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import {defineEmits, toRefs} from 'vue'
+import {defineEmits} from 'vue'
 
 const props = defineProps({
   isShow: {

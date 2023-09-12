@@ -11,7 +11,7 @@ const apiHttp = {
         return request({
             url: '/users/changeName',
             method: 'get',
-            params:params
+            params: params
         })
     }
 }

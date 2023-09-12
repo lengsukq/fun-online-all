@@ -7,7 +7,7 @@
     <h1>{{ message.split("").reverse() }}</h1>
   </div>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 const message = "文本插值语法";
 
 </script>

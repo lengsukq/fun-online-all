@@ -14,7 +14,7 @@
     <br>
     <h2>测试Teleport</h2>
     <button @click="openTeleport">点击打开Teleport</button>
-    <modalButton @closeTeleport="closeTeleport" :isShow="isShow"/>
+    <modalButton :isShow="isShow" @closeTeleport="closeTeleport"/>
     测试
   </div>
 
@@ -26,7 +26,6 @@ import {provide, ref} from 'vue'
 - provide` 和 `inject` 提供依赖注入，功能类似 2.x 的 `provide/inject
 - 实现跨层级组件(祖孙)间通信
 */
-
 import Son from './provide-inject-child.vue'
 import modalButton from './teleport.vue'
 

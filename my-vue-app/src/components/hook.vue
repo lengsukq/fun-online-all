@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 // 获取鼠标坐标的hook函数
 import useMousePosition from "../useMousePosition.ts";
 

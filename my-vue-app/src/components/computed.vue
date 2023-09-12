@@ -3,7 +3,7 @@
   <div @click="mul = 100">click</div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, ref} from 'vue'
 
 let price = ref<number | string>(1)//$0

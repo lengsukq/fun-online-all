@@ -1,8 +1,8 @@
 <template>
   <h2>App</h2>
-  <p>state:{{state}}</p>
-  <p>foo[toRef]:{{foo}}</p>
-  <p>foo2[ref]:{{foo2}}</p>
+  <p>state:{{ state }}</p>
+  <p>foo[toRef]:{{ foo }}</p>
+  <p>foo2[ref]:{{ foo2 }}</p>
 
   <button @click="update">更新</button>
 
@@ -17,16 +17,12 @@ toRef:
   应用: 当要将某个 prop 的 ref 传递给复合函数时，toRef 很有用
 */
 
-import {
-  reactive,
-  toRef,
-  ref,
-} from 'vue'
+import {reactive, ref, toRef,} from 'vue'
 import Child from './toRefChild.vue'
 
 export default {
 
-  setup () {
+  setup() {
 
     const state = reactive({
       foo: 1,

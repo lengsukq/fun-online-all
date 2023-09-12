@@ -7,7 +7,7 @@
   <button @click="upData">点击增加</button>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 // 给一个props阔以在script方法块调用，否则无法调用
 const props = defineProps({
   title: {

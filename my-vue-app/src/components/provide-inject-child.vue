@@ -2,12 +2,13 @@
   <div>
     <h2>子组件</h2>
     <hr>
-    <GrandSon />
+    <GrandSon/>
   </div>
 </template>
 
 <script lang="ts">
 import GrandSon from './provide-inject-GrandSon.vue'
+
 export default {
   components: {
     GrandSon

@@ -1,7 +1,7 @@
 <template>
   <h2>App</h2>
   <input v-model="keyword" placeholder="搜索关键字"/>
-  <p>keyword:{{keyword}}</p>
+  <p>keyword:{{ keyword }}</p>
 </template>
 
 <script lang="ts">
@@ -15,14 +15,11 @@ customRef:
 /*customRef() 预期接收一个工厂函数作为参数，这个工厂函数接受 track 和 trigger 两个函数作为参数，并返回一个带有 get 和 set 方法的对象。
 
  一般来说，track() 应该在 get() 方法中调用，而 trigger() 应该在 set() 中调用。然而事实上，你对何时调用、是否应该调用他们有完全的控制权。*/
-import {
-  ref,
-  customRef
-} from 'vue'
+import {customRef} from 'vue'
 
 export default {
 
-  setup () {
+  setup() {
     const keyword = useDebouncedRef('', 500)
     console.log(keyword)
     return {
@@ -37,7 +34,7 @@ export default {
 function useDebouncedRef<T>(value: T, delay = 200) {
   let timeout: number
   return customRef((track, trigger) => {
-    console.log('customRef',track, trigger)
+    console.log('customRef', track, trigger)
     return {
       get() {
         // 告诉Vue追踪数据
