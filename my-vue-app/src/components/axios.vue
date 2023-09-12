@@ -27,7 +27,7 @@
       <el-input v-model="formLabelAlign.keywords"/>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="changeInfoAct">提交</el-button>
+      <el-button type="primary" @click="changeInfoAct">修改</el-button>
       <el-button type="primary" @click="addUserAct">新增</el-button>
       <el-button type="primary" @click="deleteUserAct">删除</el-button>
 
@@ -38,6 +38,7 @@
 <script lang="ts" setup>
 import apiHttp from "../api/api"
 import {onMounted, reactive, ref} from "vue";
+import {ElMessage} from "element-plus";
 
 //第一种
 const data = ref(null)
@@ -61,22 +62,40 @@ const formLabelAlign = reactive({
 
 const changeInfoAct = () => {
   apiHttp.changeInfo(formLabelAlign).then((res: any) => {
-    getInfo();
     console.log('changeInfoAct', res);
+
+    if (res.code === 200) {
+      ElMessage.success(res.data)
+      getInfo();
+    } else {
+      ElMessage.error(res.data)
+    }
   })
 }
 
 const addUserAct = () => {
   apiHttp.addUser(formLabelAlign).then((res: any) => {
-    getInfo();
     console.log('addUserAct', res);
+
+    if (res.code === 200) {
+      ElMessage.success(res.data)
+      getInfo();
+    } else {
+      ElMessage.error(res.data)
+    }
   })
 }
 
 const deleteUserAct = () => {
-  apiHttp.deleteUser({id:formLabelAlign.id}).then((res: any) => {
-    getInfo();
+  apiHttp.deleteUser({id: formLabelAlign.id}).then((res: any) => {
     console.log('deleteUserAct', res);
+
+    if (res.code === 200) {
+      ElMessage.success(res.data)
+      getInfo();
+    } else {
+      ElMessage.error(res.data)
+    }
   })
 }
 
