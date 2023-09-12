@@ -1,9 +1,19 @@
 import request from "./request";
 
-export function getUniteLoginUrl(params: any) {
-    return request({
-        url: '/',
-        method: 'get',
-        params
-    })
+const apiHttp = {
+    getUniteLoginUrl() {
+        return request({
+            url: '/',
+            method: 'get',
+        })
+    },
+    changeInfo(params: any) {
+        return request({
+            url: '/users/changeName',
+            method: 'get',
+            params:params
+        })
+    }
 }
+
+export default apiHttp;
