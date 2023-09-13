@@ -65,6 +65,9 @@ const routes: Array<RouteRecordRaw> = [
             }, {
                 path: 'axios',
                 component: () => import('../components/axios.vue')
+            }, {
+                path: 'chat',
+                component: () => import('../components/chat.vue')
             }
         ]
     },
