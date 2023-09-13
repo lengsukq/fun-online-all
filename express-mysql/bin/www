@@ -19,31 +19,9 @@ app.set('port', port);
  * Create HTTP server.
  */
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-//  cors: true 跨域允许，不然前端会报跨域错误
-let io = new Server(server, { cors: true });
+const io = require('../io')
+io(server)
 
-
-io.on("connect", (socket) => {
-    // 加入房间并通知
-    socket.on("join", ({ roomId,name }) => {
-        console.log(`${name}进入[${roomId}房间]`);
-        socket.join(roomId);
-        io.in(roomId).emit("say", `${name}加入了[${roomId}房间]`);
-    });
-    // 离开房间并通知
-    socket.on("leave", ({ roomId }) => {
-        console.log(roomId, "离开房间");
-        socket.leave(roomId);
-        io.in(roomId).emit("say", `${socket.id}离开了`);
-    });
-
-    // 通过房间号发送消息
-    socket.on("sendMsgByRoom", ({ roomId,name, msg }) => {
-        console.log(`${name}发送消息到[${roomId}房间]:`, msg);
-        io.in(roomId).emit("receiveMsg", socket.id,name,msg);
-    });
-});
 
 /**
  * Listen on provided port, on all network interfaces.

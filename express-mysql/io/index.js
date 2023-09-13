@@ -1,0 +1,40 @@
+// 将server作为参数传入
+const {Server} = require("socket.io");
+module.exports = function (server) {
+    //  cors: true 跨域允许，不然前端会报跨域错误
+    let io = new Server(server, {cors: true});
+
+    // socket.to（room）
+    // room （串）
+    // Socket链接返回
+    // 为随后的事件发射设置一个修饰符，事件只会广播到已加入给定的客户端room（套接字本身被排除）。
+    //
+    // 要发射到多个房间，可以to多次打电话。
+
+    // socket.in（room）
+    // socket.to（房间）的同义词。
+    io.on("connect", (socket) => {
+        // 加入房间并通知
+        socket.on("join", ({roomId, name}) => {
+            console.log(`${name}进入[${roomId}房间]`);
+            for (let key in socket) {
+                console.log(`${key}`, socket[key]);
+            }
+            socket.join(roomId);
+            io.in(roomId).emit("say", {name:name,roomId:roomId,status:'join'});
+        });
+        // 离开房间并通知
+        socket.on("leave", ({roomId,name}) => {
+            console.log(`${name}离开[${roomId}房间]`);
+            io.in(roomId).emit("say", {name:name,roomId:roomId,status:'leave'});
+            socket.leave(roomId);
+        });
+
+        // 通过房间号发送消息
+        socket.on("sendMsgByRoom", ({roomId, name, msg}) => {
+            console.log(`${name}发送消息到[${roomId}房间]:`, msg);
+            io.in(roomId).emit("receiveMsg", socket.id, name, msg);
+        });
+    });
+
+}
