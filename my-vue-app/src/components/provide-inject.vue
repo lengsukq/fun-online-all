@@ -13,8 +13,6 @@
     <Son/>
     <br>
     <h2>测试Teleport</h2>
-    <button @click="openTeleport">点击打开Teleport</button>
-    <modalButton :isShow="isShow" @closeTeleport="closeTeleport"/>
     测试
   </div>
 
@@ -27,13 +25,11 @@ import {provide, ref} from 'vue'
 - 实现跨层级组件(祖孙)间通信
 */
 import Son from './provide-inject-child.vue'
-import modalButton from './teleport.vue'
 
 export default {
   name: 'ProvideInject',
   components: {
     Son,
-    modalButton
   },
   setup() {
 
@@ -46,17 +42,11 @@ export default {
       console.log('父组件触发closeTeleport')
       isShow.value = key
     }
-    const openTeleport = () => {
-      isShow.value = true
-      console.log('父组件触发openTeleport', isShow.value)
-
-    }
     return {
       color,
       name,
       isShow,
       closeTeleport,
-      openTeleport
     }
   }
 }

@@ -15,7 +15,7 @@ const component = defineComponent({
     }
   },
 
-  setup(props, context) {
+  setup(props) {
     console.log('props', props)
     // 双向 ref，会与源属性同步
     // 更改该 ref 会更新源属性

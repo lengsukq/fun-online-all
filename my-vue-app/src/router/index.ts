@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -59,10 +59,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'provide-inject',
                 component: () => import('../components/provide-inject.vue')
-            }, {
-                path: 'Teleport',
-                component: () => import('../components/Teleport.vue')
-            }, {
+            },  {
                 path: 'axios',
                 component: () => import('../components/axios.vue')
             }, {
@@ -74,7 +71,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes
 })
 

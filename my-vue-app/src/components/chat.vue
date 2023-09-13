@@ -17,7 +17,7 @@
       <el-button type="primary" @click="clickJoin" v-if="connectionStatus==='success'">加入房间</el-button>
       <el-button type="danger" @click="clickLeave" v-if="connectionStatus==='inside'">离开房间</el-button>
       <el-button type="primary" @click="clickSend" v-if="connectionStatus==='inside'">发送消息</el-button>
-      <el-button type="danger" @click="clearMessage(roomId)" v-if="connectionStatus==='inside'">清空消息</el-button>
+      <el-button type="danger" @click="clearMessage()" v-if="connectionStatus==='inside'">清空消息</el-button>
 
     </el-form-item>
     <el-form-item>
@@ -33,12 +33,12 @@
 
 <script setup lang="ts">
 import io from 'socket.io-client';
-import {onMounted, ref, reactive, computed} from "vue";
+import {onMounted, ref, reactive} from "vue";
 import {ElMessage} from "element-plus";
 const socket = io("http://127.0.0.1:3000", {
   timeout: 5000,
 });
-const connectionStatus = ref('fail');
+const connectionStatus = ref<string>('fail');
 const statusText = reactive({
   'fail': '未连接',
   'inside': '聊天中',
@@ -58,7 +58,7 @@ const setHistory = (roomId)=>{
 const getHistory = (roomId)=>{
   arr.value = storeHistory[roomId]?storeHistory[roomId]:arr.value;
 }
-const clearMessage = (roomId)=>{
+const clearMessage = ()=>{
   arr.value = []
 }
 
@@ -117,7 +117,7 @@ onMounted(() => {
     arr.value.push(`${name}：${msg}`);
   });
   // 连接失败
-  socket.on('connect_error', function(error) {
+  socket.on('connect_error', function() {
     socket.close();
     connectionStatus.value = 'fail';
     ElMessage.error('连接服务器超时')

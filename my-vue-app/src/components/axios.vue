@@ -41,7 +41,7 @@ import {onMounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 
 //第一种
-const data = ref(null)
+const data:any = ref('')
 //第二种
 //let books = reactive({
 // list: []

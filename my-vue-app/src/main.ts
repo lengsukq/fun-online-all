@@ -7,4 +7,5 @@ import 'element-plus/dist/index.css';
 
 console.log(ElementPlus,typeof ElementPlus)
 const app = createApp(App)
-app.use(ElementPlus as object).use(router).mount('#app');
+// @ts-ignore
+app.use(ElementPlus).use(router).mount('#app');

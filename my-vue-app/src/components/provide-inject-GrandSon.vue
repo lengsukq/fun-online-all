@@ -8,8 +8,8 @@ import {inject} from 'vue'
 
 export default {
   setup() {
-    const color = inject('color')
-    const name = inject('name')
+    const color = inject<string>('color')
+    const name = inject<string>('name')
     return {
       color,
       name
