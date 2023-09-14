@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {onMounted, ref} from "vue";
 // 优先定义ref对象，否则后面无法取值
-const refInput = ref<HTMLElement | null>(null)
+const refInput = ref(null)
 
 onMounted(() => {
   if (refInput.value) {

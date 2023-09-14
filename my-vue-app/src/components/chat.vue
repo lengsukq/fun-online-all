@@ -1,6 +1,12 @@
 <template>
+  <el-scrollbar height="400px" v-show="connectionStatus==='inside'" ref="chatContent" >
+    <div ref="inChatContent">
+      <p v-for="(item, index) in arr" :key="index">{{ item }}</p>
 
-  <h1>Chat Rom</h1>
+    </div>
+
+  </el-scrollbar>
+  <h1 v-if="connectionStatus!=='inside'">Chat Rom</h1>
   <h3>状态：{{statusText[connectionStatus]}}</h3>
   <el-form>
     <el-form-item label="昵称：">
@@ -27,7 +33,6 @@
   </el-form>
 
 
-  <div v-for="(item, index) in arr" :key="index">{{ item }}</div>
 
 </template>
 
@@ -35,7 +40,7 @@
 import io from 'socket.io-client';
 import {onMounted, ref, reactive} from "vue";
 import {ElMessage} from "element-plus";
-const socket = io("http://127.0.0.1:3000", {
+const socket = io("http://43.139.164.240:3000", {
   timeout: 5000,
 });
 const connectionStatus = ref<string>('fail');
@@ -57,6 +62,11 @@ const setHistory = (roomId)=>{
 }
 const getHistory = (roomId)=>{
   arr.value = storeHistory[roomId]?storeHistory[roomId]:arr.value;
+  if (arr.value.length!==0){
+    setTimeout(()=>{
+      scrollToBottom();
+    },200)
+  }
 }
 const clearMessage = ()=>{
   arr.value = []
@@ -83,12 +93,23 @@ const clickLeave = () => {
   roomId.value = "";
 };
 
+
+const chatContent = ref(null) // 创建一个引用
+const inChatContent = ref(null) // 创建一个引用
+const scrollToBottom = () => {
+  console.log('chatContent',chatContent.value.clientHeight,'inChatContent',inChatContent.value.clientHeight)
+  chatContent.value.setScrollTop(inChatContent.value.clientHeight)
+}
+
 // 发送消息
 const clickSend = () => {
   socket.emit("sendMsgByRoom", { roomId: roomId.value, name:name.value,msg: msg.value });
   msg.value = "";
 }
+
+
 onMounted(() => {
+  scrollToBottom();
   // 连接成功
   socket.on("connect", () => {
     title.value = "连接服务器成功";
@@ -115,6 +136,9 @@ onMounted(() => {
   socket.on("receiveMsg", (id,name, msg) => {
     console.log(id,name,msg)
     arr.value.push(`${name}：${msg}`);
+    setTimeout(()=>{
+      scrollToBottom();
+    },100)
   });
   // 连接失败
   socket.on('connect_error', function() {
