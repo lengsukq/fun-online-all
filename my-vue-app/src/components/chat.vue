@@ -1,5 +1,5 @@
 <template>
-  <el-scrollbar height="400px" v-show="connectionStatus==='inside'" ref="chatContent" >
+  <el-scrollbar height="400px" v-show="connectionStatus==='inside'" ref="chatContent">
     <div ref="inChatContent">
       <p v-for="(item, index) in arr" :key="index">{{ item }}</p>
 
@@ -7,16 +7,16 @@
 
   </el-scrollbar>
   <h1 v-if="connectionStatus!=='inside'">Chat Rom</h1>
-  <h3>状态：{{statusText[connectionStatus]}}</h3>
+  <h3>状态：{{ statusText[connectionStatus] }}</h3>
   <el-form>
     <el-form-item label="昵称：">
-      <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus==='inside'" />
+      <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus==='inside'"/>
     </el-form-item>
     <el-form-item label="房号：">
       <el-input v-model="roomId" placeholder="请输入房间号" :disabled="connectionStatus==='inside'"/>
     </el-form-item>
     <el-form-item label="内容：" v-if="connectionStatus==='inside'">
-      <el-input v-model="msg" placeholder="请输入聊天内容" />
+      <el-input v-model="msg" placeholder="请输入聊天内容" @keydown.enter="clickSend"/>
     </el-form-item>
 
     <el-form-item label="">
@@ -33,13 +33,22 @@
   </el-form>
 
 
-
 </template>
 
 <script setup lang="ts">
 import io from 'socket.io-client';
-import {onMounted, ref, reactive} from "vue";
+import {onMounted, onUnmounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
+// 添加 beforeunload 事件监听器
+window.addEventListener("beforeunload", () => {
+  if (roomId && connectionStatus.value === 'inside') {
+    clickLeave();
+  }
+  return true;
+});
+onUnmounted(()=>{
+  window.removeEventListener('beforeunload', () => {})
+})
 const socket = io("http://43.139.164.240:3000", {
   timeout: 5000,
 });
@@ -51,24 +60,24 @@ const statusText = reactive({
 })
 const title = ref("正在连接服务器");
 
-const reOpen = ()=>{
+const reOpen = () => {
   socket.open()
 }
 
-const storeHistory = localStorage.getItem('storeHistory')?JSON.parse(localStorage.getItem('storeHistory')):{};
-const setHistory = (roomId)=>{
-      storeHistory[roomId] = arr.value;
-      localStorage.setItem('storeHistory',JSON.stringify(storeHistory))
+const storeHistory = localStorage.getItem('storeHistory') ? JSON.parse(localStorage.getItem('storeHistory')) : {};
+const setHistory = (roomId) => {
+  storeHistory[roomId] = arr.value;
+  localStorage.setItem('storeHistory', JSON.stringify(storeHistory))
 }
-const getHistory = (roomId)=>{
-  arr.value = storeHistory[roomId]?storeHistory[roomId]:arr.value;
-  if (arr.value.length!==0){
-    setTimeout(()=>{
+const getHistory = (roomId) => {
+  arr.value = storeHistory[roomId] ? storeHistory[roomId] : arr.value;
+  if (arr.value.length !== 0) {
+    setTimeout(() => {
       scrollToBottom();
-    },200)
+    }, 200)
   }
 }
-const clearMessage = ()=>{
+const clearMessage = () => {
   arr.value = []
 }
 
@@ -78,18 +87,18 @@ const msg = ref("");
 const name = ref("");
 // 点击加入房间
 const clickJoin = () => {
-  if (!name.value || !roomId.value){
+  if (!name.value || !roomId.value) {
     ElMessage.warning("请输入完整的房间号和用户名");
     return;
   }
   arr.value.length = 0;
   getHistory(roomId.value)
-  socket.emit("join", { roomId: roomId.value,name: name.value });
+  socket.emit("join", {roomId: roomId.value, name: name.value});
 };
 
 // 点击离开房间
 const clickLeave = () => {
-  socket.emit("leave", { roomId: roomId.value,name: name.value });
+  socket.emit("leave", {roomId: roomId.value, name: name.value});
   roomId.value = "";
 };
 
@@ -97,18 +106,19 @@ const clickLeave = () => {
 const chatContent = ref(null) // 创建一个引用
 const inChatContent = ref(null) // 创建一个引用
 const scrollToBottom = () => {
-  console.log('chatContent',chatContent.value.clientHeight,'inChatContent',inChatContent.value.clientHeight)
+  console.log('chatContent', chatContent.value.clientHeight, 'inChatContent', inChatContent.value.clientHeight)
   chatContent.value.setScrollTop(inChatContent.value.clientHeight)
 }
 
 // 发送消息
 const clickSend = () => {
-  socket.emit("sendMsgByRoom", { roomId: roomId.value, name:name.value,msg: msg.value });
+  socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: msg.value});
   msg.value = "";
 }
 
 
 onMounted(() => {
+
   scrollToBottom();
   // 连接成功
   socket.on("connect", () => {
@@ -119,29 +129,29 @@ onMounted(() => {
 
   // 房间好友上线通知
   socket.on("say", (data) => {
-    console.log('房间好友上线通知',data)
-    if (data.status === 'join'){
+    console.log('房间好友上线通知', data)
+    if (data.status === 'join') {
       connectionStatus.value = 'inside'
-    }else if(data.status==='leave'){
-      if (name.value === data.name){
+    } else if (data.status === 'leave') {
+      if (name.value === data.name) {
         setHistory(data.roomId);
         arr.value = [];
       }
-      connectionStatus.value = name.value===data.name?'success':connectionStatus.value;
+      connectionStatus.value = name.value === data.name ? 'success' : connectionStatus.value;
     }
-    ElMessage.info(`${data.name}${data.status==='join'?'加入':'离开'}了[${data.roomId}房间]`);
+    ElMessage.info(`${data.name}${data.status === 'join' ? '加入' : '离开'}了[${data.roomId}房间]`);
   });
 
   // 收到的消息
-  socket.on("receiveMsg", (id,name, msg) => {
-    console.log(id,name,msg)
+  socket.on("receiveMsg", (id, name, msg) => {
+    console.log(id, name, msg)
     arr.value.push(`${name}：${msg}`);
-    setTimeout(()=>{
+    setTimeout(() => {
       scrollToBottom();
-    },100)
+    }, 100)
   });
   // 连接失败
-  socket.on('connect_error', function() {
+  socket.on('connect_error', function () {
     socket.close();
     connectionStatus.value = 'fail';
     ElMessage.error('连接服务器超时')
