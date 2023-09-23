@@ -1,9 +1,11 @@
 <template>
   <div>
     <div class="title">
-      总分： {{ score }}
+      总分： {{ score }} <br>
+      <!--      {{direction}}-->
     </div>
-    <div class="game">
+    <div class="game" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
+         @mousedown="onTouchStart" @mousemove="onTouchMove" @mouseup="onTouchEnd">
       <!-- 背景布局 -->
       <div class="game-bg">
         <div class="item" v-for="i in 16" :key="i"></div>
@@ -16,9 +18,80 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+<script setup lang="ts">
+import {onMounted, onUnmounted, ref} from 'vue'
 import NumberBlock from '../components/NumberBlock.vue'
+
+const startY = ref(0);
+const startX = ref(0);
+const onTouchStart = (event) => {
+
+  if (event.clientX) {
+    console.log('鼠标事件');
+    startY.value = event.pageY;
+    startX.value = event.pageX;
+  } else {
+    console.log('触摸事件');
+    // 获取手指的初始坐标
+    startY.value = event.touches[0].pageY;
+    startX.value = event.touches[0].pageX;
+  }
+
+}
+
+const direction = ref('')
+const onTouchMove = (event) => {
+
+  event.preventDefault()
+  let moveEndX =0, moveEndY=0;
+  if (event.clientX) {
+    moveEndX = event.pageX
+    moveEndY = event.pageY
+  } else {
+    moveEndX = event.changedTouches[0].pageX
+    moveEndY = event.changedTouches[0].pageY
+  }
+
+  let X = moveEndX - startX.value
+  let Y = moveEndY - startY.value
+  if (Math.abs(X) > Math.abs(Y) && X > 100) {
+    direction.value = 'right';
+  } else if (Math.abs(X) > Math.abs(Y) && X < 100) {
+    direction.value = 'left';
+  } else if (Math.abs(Y) > Math.abs(X) && Y > 100) {
+    direction.value = 'down';
+  } else if (Math.abs(Y) > Math.abs(X) && Y < 100) {
+    direction.value = 'up';
+  } else {
+    direction.value = '';
+
+    // alert('just touch')
+  }
+}
+
+const onTouchEnd = () => {
+  switch (direction.value) {
+    case 'right':
+      right();
+      update();
+      break;
+    case 'left':
+      left();
+      update();
+      break;
+    case 'down':
+      down();
+      update();
+      break;
+    case 'up':
+      up();
+      update()
+      break;
+    case '':
+      break;
+  }
+}
+
 let uid = 0;
 
 const grid = [[], [], [], []];
@@ -26,7 +99,8 @@ const numberList = ref([]).value;
 
 // 计分
 const score = ref(0);
-function addScore(num){
+
+function addScore(num) {
   score.value += num;
 }
 
@@ -34,7 +108,8 @@ function addScore(num){
 function initGame() {
   uid = 0;
   score.value = 0;
-  grid.forEach((v,i) => {
+  grid.forEach((v, i) => {
+    console.log(v)
     grid[i] = []
   });
   numberList.length = 0;
@@ -59,6 +134,7 @@ function random() {
     }
   }
 }
+
 // 创建number
 function createNumber(x, y) {
   let number = ref({
@@ -70,6 +146,7 @@ function createNumber(x, y) {
   grid[x][y] = number;
   numberList.push(number);
 }
+
 // 移除number
 function removeNumber(i) {
   numberList.splice(i, 1);
@@ -86,6 +163,7 @@ function up() {
     }
   }
 }
+
 function down() {
   for (let i = 2; i >= 0; i--) {
     for (let j = 0; j < 4; j++) {
@@ -93,6 +171,7 @@ function down() {
     }
   }
 }
+
 function left() {
   for (let i = 0; i < 4; i++) {
     for (let j = 1; j < 4; j++) {
@@ -100,6 +179,7 @@ function left() {
     }
   }
 }
+
 function right() {
   for (let i = 0; i < 4; i++) {
     for (let j = 2; j >= 0; j--) {
@@ -113,35 +193,32 @@ function move(x, y, dir) {
   if (!self) return;
 
   grid[x][y] = undefined;
-  if(dir === 'up'){
+  if (dir === 'up') {
     while (x-- > 0) {
       if (moveTo(self, x, y) === false) {
         break;
       }
     }
-  }
-  else if(dir === 'down'){
+  } else if (dir === 'down') {
     while (x++ < 3) {
       if (moveTo(self, x, y) === false) {
         break;
       }
     }
-  }
-  else if(dir === 'left'){
+  } else if (dir === 'left') {
     while (y-- > 0) {
       if (moveTo(self, x, y) === false) {
         break;
       }
     }
-  }
-  else if(dir === 'right'){
+  } else if (dir === 'right') {
     while (y++ < 3) {
       if (moveTo(self, x, y) === false) {
         break;
       }
     }
   }
-  if(!self._delete){
+  if (!self._delete) {
     grid[self.x][self.y] = self;
   }
 }
@@ -174,6 +251,7 @@ function update() {
     isEnded();
   }
 }
+
 function isEnded() {
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
@@ -186,6 +264,7 @@ function isEnded() {
 }
 
 function listener(e) {
+  console.log('listener', e.keyCode)
   switch (e.keyCode) {
     case 38:
     case 87:
@@ -206,6 +285,7 @@ function listener(e) {
     default:
       return true;
   }
+
   e.preventDefault();
   update();
   return false;
@@ -237,16 +317,17 @@ onUnmounted(() => {
 
 .game-bg {
   display: grid;
-  grid-template-columns: repeat(4, 100px);
-  grid-template-rows: repeat(4, 100px);
+  grid-template-columns: repeat(4, 70px);
+  grid-template-rows: repeat(4, 70px);
   grid-gap: 10px;
   border: 10px solid #bcaca0;
   background: #bcaca0;
   border-radius: 10px;
 }
+
 .item {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   background: #ccc1b4;
   border-radius: 5px;
 }

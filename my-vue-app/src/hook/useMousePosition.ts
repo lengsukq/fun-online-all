@@ -1,6 +1,6 @@
 import {onMounted, onUnmounted, ref} from "vue";
 
-
+// 获取点击坐标
 export default function useMousePosition() {
 
     const x = ref(0), y = ref(0)

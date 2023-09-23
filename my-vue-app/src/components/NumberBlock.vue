@@ -25,7 +25,7 @@ const adding = ref(false);
 const zIndex = ref(1);
 
 const style = computed(() => {
-  let transform = `translate(${item.y * 110}px,${item.x * 110}px)`;
+  let transform = `translate(${item.y * 80}px,${item.x * 80}px)`;
   return {
     transform,
     zIndex: item.number + zIndex.value
@@ -63,8 +63,8 @@ watch(
 
 <style scoped>
 .number {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   background: #ccc1b4;
   border-radius: 5px;
   position: absolute;
