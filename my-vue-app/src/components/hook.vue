@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 // 获取鼠标坐标的hook函数
-import useMousePosition from "../useMousePosition.ts";
+import useMousePosition from "../hook/test/useMousePosition.ts";
 
 const {x, y} = useMousePosition();
 
