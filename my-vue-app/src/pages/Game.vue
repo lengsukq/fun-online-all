@@ -55,25 +55,27 @@ const clickLeave = () => {
   roomId.value = "";
 };
 // 发送消息
-const clickSend = () => {
-  socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: direction.value});
-  direction.value = "";
-}
-const sendGameInfo = (data:object) => {
-  let gameInfo={
-    name:name.value,
-    roomId:roomId.value,
-    gameInfo:data,
+// const clickSend = () => {
+//   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: direction.value});
+//   direction.value = "";
+// }
+const sendGameInfo = (data: object) => {
+  let gameInfo = {
+    name: name.value,
+    roomId: roomId.value,
+    gameInfo: data,
   };
-  console.log('sendGameInfo',gameInfo)
+  console.log('sendGameInfo', gameInfo)
   socket.emit("sendGameInfo", {
-    name:name.value,
-    roomId:roomId.value,
-    gameInfo:data,
+    name: name.value,
+    roomId: roomId.value,
+    gameInfo: data,
   });
 }
+let isReceive = false;
 
 onMounted(() => {
+  window.addEventListener('keydown', listener);
   socket.on("connect", () => {
     connectionStatus.value = "success";
 
@@ -102,16 +104,24 @@ onMounted(() => {
   });
   // 收到的游戏数据
   socket.on("receiveGameInfo", (recGameInfo) => {
-    console.log('收到的游戏数据',recGameInfo)
-    if (recGameInfo.isInit){
-      initGame(false,recGameInfo)
+    console.log('收到的游戏数据', recGameInfo);
+    if (recGameInfo.name!==name.value.toString()){
+      if (recGameInfo.isInit) {
+        isReceive= true;
+        initGame(false, recGameInfo)
+      }else{
+        isReceive=true;
+        direction.value= recGameInfo.direction;
+        moveNum.value = recGameInfo.moveNum;
+        onTouchEnd();
+      }
     }
   });
 })
 const startY = ref(0);
 const startX = ref(0);
 const onTouchStart = (event) => {
-
+  isReceive = false;
   if (event.clientX) {
     console.log('鼠标事件');
     startY.value = event.pageY;
@@ -140,20 +150,20 @@ const onTouchMove = (event) => {
 
   let X = moveEndX - startX.value
   let Y = moveEndY - startY.value
-  if (Math.abs(X) > Math.abs(Y) && X > 100) {
+  if (Math.abs(X) > Math.abs(Y) && X > 0) {
     direction.value = 'right';
-  } else if (Math.abs(X) > Math.abs(Y) && X < 100) {
+  } else if (Math.abs(X) > Math.abs(Y) && X < 0) {
     direction.value = 'left';
-  } else if (Math.abs(Y) > Math.abs(X) && Y > 100) {
+  } else if (Math.abs(Y) > Math.abs(X) && Y > 0) {
     direction.value = 'down';
-  } else if (Math.abs(Y) > Math.abs(X) && Y < 100) {
+  } else if (Math.abs(Y) > Math.abs(X) && Y < 0) {
     direction.value = 'up';
   } else {
     direction.value = '';
-
-    // alert('just touch')
   }
 }
+
+const moveNum = ref(0)
 
 const onTouchEnd = () => {
   switch (direction.value) {
@@ -176,7 +186,6 @@ const onTouchEnd = () => {
     case '':
       break;
   }
-  clickSend();
 }
 
 let uid = 0;
@@ -192,38 +201,37 @@ function addScore(num) {
 }
 
 const gameInfo = reactive({});
+
 // 初始化游戏
-function initGame(isNewGame=true,recGameInfo={count1:0,count2:0}) {
+function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
+
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
-    console.log(v)
+    console.log('grid[i]',v)
     grid[i] = []
   });
   numberList.length = 0;
-  if(isNewGame){
-    random(true,1);
-    random(true,2);
+  console.log('numberList',numberList)
+  if (isNewGame) {
+    let num=0;
+    for (let i = 1; i < 3; i++){
+      num = Math.floor(Math.random() * 16);
+      random(num);
+      gameInfo[`count${i}`] = num;
+    }
     gameInfo['isInit'] = true;
     sendGameInfo(gameInfo)
-  }else{
-    random(false,1,recGameInfo.count1);
-    random(false,2,recGameInfo.count2);
+  } else {
+    random(recGameInfo.count1);
+    random(recGameInfo.count2);
   }
-
 
 }
 
 // 随机选中一个空位置
-function random(isNewGame=false,count=0,recNum=0) {
-  let num = 0;
-  if (isNewGame){
-     num = Math.floor(Math.random() * 16);
-    gameInfo[`count${count}`] = num;
-  }else{
-    num =recNum
-  }
-
+function random(num=0) {
+  console.log('random',num)
   while (num > -1) {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
@@ -350,7 +358,14 @@ function moveTo(self, x, y) { // 判断下一格是否能移动，以及是否�
 function update() {
   if (_moved) {
     _moved = false;
-    random();
+    console.log('进行判断是否是接收端',isReceive)
+    if (!isReceive){
+      let num = Math.floor(Math.random() * 16);
+      random(num);
+      sendGameInfo({moveNum:num,direction:direction.value})
+    }else{
+      random(moveNum.value);
+    }
   } else {
     isEnded();
   }
@@ -395,10 +410,6 @@ function listener(e) {
   return false;
 }
 
-onMounted(() => {
-  // initGame();
-  window.addEventListener('keydown', listener);
-});
 
 onUnmounted(() => {
   window.removeEventListener('keydown', listener)

@@ -71,6 +71,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../pages/Game.vue')
     },
     {
+        path: '/game',
+        component: () => import('../pages/Game-yuan.vue')
+    },
+    {
         path: '/chat',
         component: () => import('../pages/chat.vue')
     }

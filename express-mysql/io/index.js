@@ -17,6 +17,7 @@ module.exports = function (server) {
         // 游戏数据传输
         socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
             console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
+            gameInfo['name'] = name;
             io.in(roomId).emit("receiveGameInfo", gameInfo);
         });
 
