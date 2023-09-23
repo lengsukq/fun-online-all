@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <div class="title">
+  <div class="gameContainer">
+    <!--    基础信息-->
+    <div>
       总分： {{ score }} <br>
-      <!--      {{direction}}-->
+      {{ nameList.toString() }}当前在[{{ roomId }}]号房间
+      <h5 v-for="(item,index) in arr" :key="index">
+        {{ item }}
+      </h5>
     </div>
     <div class="game" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
          @mousedown="onTouchStart" @mousemove="onTouchMove" @mouseup="onTouchEnd">
@@ -15,13 +19,73 @@
         <NumberBlock v-for="(v,i) in numberList" :key="v.uid" :item="v" @remove="removeNumber(i)"/>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue'
+import {onMounted, onUnmounted, reactive, ref} from 'vue'
 import NumberBlock from '../components/NumberBlock.vue'
+import socketAct from '../hook/socketAct.ts'
+import {ElMessage} from "element-plus";
+import {useRouter} from "vue-router";
+// 添加 beforeunload 事件监听器
+window.addEventListener("beforeunload", () => {
+  if (roomId && connectionStatus.value === 'inside') {
+    clickLeave();
+  }
+  return true;
+});
+const socket = socketAct.socketInit();
+const roomId = ref(''), name = ref(''), nameList = reactive([]);
+const connectionStatus = ref<string>('fail');
+const arr = reactive([]);
+const router = useRouter();
+let query = router.currentRoute.value.query;
+roomId.value = <string>query.roomId;
+name.value = <string>query.name;
+// 点击加入房间
+const clickJoin = () => {
+  socket.emit("join", {roomId: roomId.value, name: name.value});
+};
+// 点击离开房间
+const clickLeave = () => {
+  socket.emit("leave", {roomId: roomId.value, name: name.value});
+  roomId.value = "";
+};
+// 发送消息
+const clickSend = () => {
+  socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: direction.value});
+  direction.value = "";
+}
+onMounted(() => {
+  socket.on("connect", () => {
+    connectionStatus.value = "success";
 
+    ElMessage.success("连接服务器成功");
+  });
+  clickJoin();
+  // 房间好友上线通知
+  socket.on("say", (data) => {
+    console.log('房间好友上线通知', data)
+    if (data.status === 'join') {
+      connectionStatus.value = 'inside';
+      nameList.push(data.name);
+    } else if (data.status === 'leave') {
+      nameList.splice(nameList.indexOf(data.name), 1);
+      if (name.value === data.name) {
+      }
+      connectionStatus.value = name.value === data.name ? 'success' : connectionStatus.value;
+    }
+    ElMessage.info(`${data.name}${data.status === 'join' ? '加入' : '离开'}了[${data.roomId}房间]`);
+  });
+  // 收到的消息
+  socket.on("receiveMsg", (id, name, msg) => {
+    console.log(id, name, msg)
+    arr.push(`${name}：${msg}`);
+    // onTouchEnd();
+  });
+})
 const startY = ref(0);
 const startX = ref(0);
 const onTouchStart = (event) => {
@@ -43,7 +107,7 @@ const direction = ref('')
 const onTouchMove = (event) => {
 
   event.preventDefault()
-  let moveEndX =0, moveEndY=0;
+  let moveEndX = 0, moveEndY = 0;
   if (event.clientX) {
     moveEndX = event.pageX
     moveEndY = event.pageY
@@ -90,6 +154,7 @@ const onTouchEnd = () => {
     case '':
       break;
   }
+  clickSend();
 }
 
 let uid = 0;
@@ -304,6 +369,10 @@ onUnmounted(() => {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.gameContainer {
+  display: flex;
+}
+
 .title {
   text-align: center;
   color: #776e65;

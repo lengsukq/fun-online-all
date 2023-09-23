@@ -36,9 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import io from 'socket.io-client';
 import {onMounted, onUnmounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
+import socketAct from '../hook/socketAct.ts'
 // 添加 beforeunload 事件监听器
 window.addEventListener("beforeunload", () => {
   if (roomId && connectionStatus.value === 'inside') {
@@ -49,9 +49,9 @@ window.addEventListener("beforeunload", () => {
 onUnmounted(()=>{
   window.removeEventListener('beforeunload', () => {})
 })
-const socket = io("http://43.139.164.240:3000", {
-  timeout: 5000,
-});
+console.log('socketInit',socketAct)
+const socket = socketAct.socketInit();
+
 const connectionStatus = ref<string>('fail');
 const statusText = reactive({
   'fail': '未连接',
