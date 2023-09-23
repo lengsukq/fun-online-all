@@ -2,6 +2,7 @@
   <div class="gameContainer">
     <!--    基础信息-->
     <div>
+      <el-button type="primary" @click="initGame">开始游戏</el-button>
       总分： {{ score }} <br>
       {{ nameList.toString() }}当前在[{{ roomId }}]号房间
       <h5 v-for="(item,index) in arr" :key="index">
@@ -58,6 +59,20 @@ const clickSend = () => {
   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: direction.value});
   direction.value = "";
 }
+const sendGameInfo = (data:object) => {
+  let gameInfo={
+    name:name.value,
+    roomId:roomId.value,
+    gameInfo:data,
+  };
+  console.log('sendGameInfo',gameInfo)
+  socket.emit("sendGameInfo", {
+    name:name.value,
+    roomId:roomId.value,
+    gameInfo:data,
+  });
+}
+
 onMounted(() => {
   socket.on("connect", () => {
     connectionStatus.value = "success";
@@ -84,6 +99,13 @@ onMounted(() => {
     console.log(id, name, msg)
     arr.push(`${name}：${msg}`);
     // onTouchEnd();
+  });
+  // 收到的游戏数据
+  socket.on("receiveGameInfo", (recGameInfo) => {
+    console.log('收到的游戏数据',recGameInfo)
+    if (recGameInfo.isInit){
+      initGame(false,recGameInfo)
+    }
   });
 })
 const startY = ref(0);
@@ -149,7 +171,7 @@ const onTouchEnd = () => {
       break;
     case 'up':
       up();
-      update()
+      update();
       break;
     case '':
       break;
@@ -169,8 +191,9 @@ function addScore(num) {
   score.value += num;
 }
 
+const gameInfo = reactive({});
 // 初始化游戏
-function initGame() {
+function initGame(isNewGame=true,recGameInfo={count1:0,count2:0}) {
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
@@ -178,13 +201,29 @@ function initGame() {
     grid[i] = []
   });
   numberList.length = 0;
-  random();
-  random();
+  if(isNewGame){
+    random(true,1);
+    random(true,2);
+    gameInfo['isInit'] = true;
+    sendGameInfo(gameInfo)
+  }else{
+    random(false,1,recGameInfo.count1);
+    random(false,2,recGameInfo.count2);
+  }
+
+
 }
 
 // 随机选中一个空位置
-function random() {
-  let num = Math.floor(Math.random() * 16);
+function random(isNewGame=false,count=0,recNum=0) {
+  let num = 0;
+  if (isNewGame){
+     num = Math.floor(Math.random() * 16);
+    gameInfo[`count${count}`] = num;
+  }else{
+    num =recNum
+  }
+
   while (num > -1) {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
@@ -357,7 +396,7 @@ function listener(e) {
 }
 
 onMounted(() => {
-  initGame();
+  // initGame();
   window.addEventListener('keydown', listener);
 });
 

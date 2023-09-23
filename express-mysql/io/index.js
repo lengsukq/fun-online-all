@@ -14,6 +14,12 @@ module.exports = function (server) {
     // socket.in（room）
     // socket.to（房间）的同义词。
     io.on("connect", (socket) => {
+        // 游戏数据传输
+        socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
+            console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
+            io.in(roomId).emit("receiveGameInfo", gameInfo);
+        });
+
         // 加入房间并通知
         socket.on("join", ({roomId, name}) => {
             console.log(`${name}进入[${roomId}房间]`);
@@ -21,12 +27,12 @@ module.exports = function (server) {
                 console.log(`${key}`, socket[key]);
             }
             socket.join(roomId);
-            io.in(roomId).emit("say", {name:name,roomId:roomId,status:'join'});
+            io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'join'});
         });
         // 离开房间并通知
-        socket.on("leave", ({roomId,name}) => {
+        socket.on("leave", ({roomId, name}) => {
             console.log(`${name}离开[${roomId}房间]`);
-            io.in(roomId).emit("say", {name:name,roomId:roomId,status:'leave'});
+            io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'leave'});
             socket.leave(roomId);
         });
 
