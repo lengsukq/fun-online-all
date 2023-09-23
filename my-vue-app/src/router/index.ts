@@ -3,6 +3,7 @@ import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
+        redirect:'/chat',
         children: [
             {
                 path: 'welcome',
@@ -62,12 +63,17 @@ const routes: Array<RouteRecordRaw> = [
             },  {
                 path: 'axios',
                 component: () => import('../components/axios.vue')
-            }, {
-                path: 'chat',
-                component: () => import('../components/chat.vue')
-            }
+            },
         ]
     },
+    {
+        path: '/2048',
+        component: () => import('../pages/Game.vue')
+    },
+    {
+        path: '/chat',
+        component: () => import('../pages/chat.vue')
+    }
 ]
 
 const router = createRouter({
