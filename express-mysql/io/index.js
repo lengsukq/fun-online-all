@@ -1,6 +1,8 @@
 // 将server作为参数传入
 const {Server} = require("socket.io");
 module.exports = function (server) {
+    let roomInfo = {};
+
     //  cors: true 跨域允许，不然前端会报跨域错误
     let io = new Server(server, {cors: true});
 
@@ -17,6 +19,7 @@ module.exports = function (server) {
         // 游戏数据传输
         socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
             console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
+            console.log('roomInfo',roomInfo)
             gameInfo['name'] = name;
             io.in(roomId).emit("receiveGameInfo", gameInfo);
         });
@@ -24,15 +27,23 @@ module.exports = function (server) {
         // 加入房间并通知
         socket.on("join", ({roomId, name}) => {
             console.log(`${name}进入[${roomId}房间]`);
-            for (let key in socket) {
-                console.log(`${key}`, socket[key]);
+            // for (let key in socket) {
+            //     console.log(`${key}`, socket[key]);
+            // }
+            if (roomInfo[`${roomId}`]){
+                roomInfo[`${roomId}`].push(name);
+            }else{
+                roomInfo[`${roomId}`]=[name];
+
             }
             socket.join(roomId);
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'join'});
         });
         // 离开房间并通知
         socket.on("leave", ({roomId, name}) => {
-            console.log(`${name}离开[${roomId}房间]`);
+            console.log(`${name}离开[${roomId}房间]`,roomInfo[roomId]);
+
+            roomInfo[roomId] = roomInfo[roomId]?roomInfo[roomId].filter((item) => item !== roomId):roomInfo[roomId];
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'leave'});
             socket.leave(roomId);
         });

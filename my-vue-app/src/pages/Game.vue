@@ -16,7 +16,7 @@
         <div class="item" v-for="i in 16" :key="i"></div>
       </div>
 
-      <div class="canvas">
+      <div class="canvas" :key="setNumBlock">
         <NumberBlock v-for="(v,i) in numberList" :key="v.uid" :item="v" @remove="removeNumber(i)"/>
       </div>
     </div>
@@ -32,11 +32,10 @@ import {ElMessage} from "element-plus";
 import {useRouter} from "vue-router";
 // 添加 beforeunload 事件监听器
 window.addEventListener("beforeunload", () => {
-  if (roomId && connectionStatus.value === 'inside') {
-    clickLeave();
-  }
+  clickLeave();
   return true;
 });
+const setNumBlock = ref(1)
 const socket = socketAct.socketInit();
 const roomId = ref(''), name = ref(''), nameList = reactive([]);
 const connectionStatus = ref<string>('fail');
@@ -105,13 +104,13 @@ onMounted(() => {
   // 收到的游戏数据
   socket.on("receiveGameInfo", (recGameInfo) => {
     console.log('收到的游戏数据', recGameInfo);
-    if (recGameInfo.name!==name.value.toString()){
+    if (recGameInfo.name !== name.value.toString()) {
       if (recGameInfo.isInit) {
-        isReceive= true;
+        isReceive = true;
         initGame(false, recGameInfo)
-      }else{
-        isReceive=true;
-        direction.value= recGameInfo.direction;
+      } else {
+        isReceive = true;
+        direction.value = recGameInfo.direction;
         moveNum.value = recGameInfo.moveNum;
         onTouchEnd();
       }
@@ -204,18 +203,18 @@ const gameInfo = reactive({});
 
 // 初始化游戏
 function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
-
+  setNumBlock.value += setNumBlock.value;
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
-    console.log('grid[i]',v)
+    console.log('grid[i]', v)
     grid[i] = []
   });
   numberList.length = 0;
-  console.log('numberList',numberList)
+  console.log('numberList', numberList)
   if (isNewGame) {
-    let num=0;
-    for (let i = 1; i < 3; i++){
+    let num = 0;
+    for (let i = 1; i < 3; i++) {
       num = Math.floor(Math.random() * 16);
       random(num);
       gameInfo[`count${i}`] = num;
@@ -230,8 +229,8 @@ function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
 }
 
 // 随机选中一个空位置
-function random(num=0) {
-  console.log('random',num)
+function random(num = 0) {
+  console.log('random', num)
   while (num > -1) {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
@@ -358,12 +357,12 @@ function moveTo(self, x, y) { // 判断下一格是否能移动，以及是否�
 function update() {
   if (_moved) {
     _moved = false;
-    console.log('进行判断是否是接收端',isReceive)
-    if (!isReceive){
+    console.log('进行判断是否是接收端', isReceive)
+    if (!isReceive) {
       let num = Math.floor(Math.random() * 16);
       random(num);
-      sendGameInfo({moveNum:num,direction:direction.value})
-    }else{
+      sendGameInfo({moveNum: num, direction: direction.value})
+    } else {
       random(moveNum.value);
     }
   } else {
@@ -413,6 +412,8 @@ function listener(e) {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', listener)
+  window.removeEventListener('beforeunload', () => {
+  })
 })
 
 </script>
