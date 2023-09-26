@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import dragBallComponent from "./components/dragBallComponent.vue";
+
 </script>
 
 <template>
+  <dragBallComponent></dragBallComponent>
   <!--  <router-link to="/home/hello">hiPage2</router-link>|-->
   <!--  <router-link to="/">Home</router-link>-->
   <!--  <router-link to="/welcome">welcome</router-link>-->
