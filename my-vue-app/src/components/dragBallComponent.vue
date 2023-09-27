@@ -35,7 +35,6 @@ const inset = ref({
 // 移动
 const move = ref({})
 const touchstart = (e) => {
-  console.log('touchstart', e)
   if (!canDrag.value) {
     startTime.value = e.timeStamp;
     positionOld.value = getPosition(dragBall.value);
