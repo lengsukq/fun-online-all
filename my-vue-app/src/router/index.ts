@@ -7,72 +7,72 @@ const routes: Array<RouteRecordRaw> = [
         children: [
             {
                 path: 'welcome',
-                component: () => import('../components/HelloWorld.vue')
+                component: () => import('../pages/studyBySelf/HelloWorld.vue')
             },
             {
                 path: 'hello',
-                component: () => import('../components/hello.vue')
+                component: () => import('../pages/studyBySelf/hello.vue')
             },
             {
                 path: 'computed',
-                component: () => import('../components/computed.vue')
+                component: () => import('../pages/studyBySelf/computed.vue')
             },
             {
                 path: 'parentsCom',
-                component: () => import('../components/parentsCom.vue')
+                component: () => import('../pages/studyBySelf/parentsCom.vue')
             },
             {
                 path: 'reactive',
-                component: () => import('../components/reactive.vue')
+                component: () => import('../pages/studyBySelf/reactive.vue')
             },
             {
                 path: 'setup',
-                component: () => import('../components/setup.vue')
+                component: () => import('../pages/studyBySelf/setup.vue')
             },
             {
                 path: 'watch',
-                component: () => import('../components/watch.vue')
+                component: () => import('../pages/studyBySelf/watch.vue')
             },
             {
                 path: 'hook',
-                component: () => import('../components/hook.vue')
+                component: () => import('../pages/studyBySelf/hook.vue')
             },
             {
                 path: 'ref-focus',
-                component: () => import('../components/ref-focus.vue')
+                component: () => import('../pages/studyBySelf/ref-focus.vue')
             },
             {
                 path: 'shallowReactive-shallowRef',
-                component: () => import('../components/shallowReactive-shallowRef.vue')
+                component: () => import('../pages/studyBySelf/shallowReactive-shallowRef.vue')
             },
             {
                 path: 'readonly-shallowReadonly',
-                component: () => import('../components/readonly-shallowReadonly.vue')
+                component: () => import('../pages/studyBySelf/readonly-shallowReadonly.vue')
             },
             {
                 path: 'toRef',
-                component: () => import('../components/toRef.vue')
+                component: () => import('../pages/studyBySelf/toRef.vue')
             },
             {
                 path: 'customRef',
-                component: () => import('../components/customRef.vue')
+                component: () => import('../pages/studyBySelf/customRef.vue')
             },
             {
                 path: 'provide-inject',
-                component: () => import('../components/provide-inject.vue')
+                component: () => import('../pages/studyBySelf/provide-inject.vue')
             },  {
                 path: 'axios',
-                component: () => import('../components/axios.vue')
+                component: () => import('../pages/studyBySelf/axios.vue')
             },
         ]
     },
     {
         path: '/2048',
-        component: () => import('../pages/Game.vue')
+        component: () => import('../pages/game/2048.vue')
     },
     {
-        path: '/game',
-        component: () => import('../pages/Game-yuan.vue')
+        path: '/2048_original',
+        component: () => import('../pages/game/2048_original.vue')
     },
     {
         path: '/chat',

@@ -26,8 +26,8 @@
 
 <script setup lang="ts">
 import {onMounted, onUnmounted, reactive, ref} from 'vue'
-import NumberBlock from '../components/NumberBlock.vue'
-import socketAct from '../hook/socketAct.ts'
+import NumberBlock from '../studyBySelf/NumberBlock.vue'
+import socketAct from '../../hook/socketAct.ts'
 import {ElMessage} from "element-plus";
 import {useRouter} from "vue-router";
 // 添加 beforeunload 事件监听器

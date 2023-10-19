@@ -1,3 +1,5 @@
+
+<!--开源项目引用修改-->
 <template>
   <div>
     <button @click="initGame">初始化</button>
@@ -19,7 +21,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import NumberBlock from '../components/NumberBlock.vue'
+import NumberBlock from '../studyBySelf/NumberBlock.vue'
 let uid = 0;
 
 const grid = [[], [], [], []];

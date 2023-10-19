@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import apiHttp from "../api/api"
+import apiHttp from "../../api/api"
 import {onMounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 
