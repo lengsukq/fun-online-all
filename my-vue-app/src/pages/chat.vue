@@ -2,12 +2,12 @@
   <el-scrollbar height="400px" v-show="connectionStatus==='inside'" ref="chatContent">
     <div ref="inChatContent">
       <p v-for="(item, index) in arr" :key="index">{{ item }}</p>
-
     </div>
 
   </el-scrollbar>
   <h1 v-if="connectionStatus!=='inside'">Chat Rom</h1>
   <h3>状态：{{ statusText[connectionStatus] }}</h3>
+  <h3 v-if="connectionStatus==='inside'">当前房间在线：{{sameRoomUser}}</h3>
   <el-form>
     <el-form-item label="昵称：">
       <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus==='inside'"/>
@@ -55,7 +55,7 @@ const socket = socketAct.socketInit();
 const connectionStatus = ref<string>('fail');
 const statusText = reactive({
   'fail': '未连接',
-  'inside': '聊天中',
+  'inside': '已加入',
   'success': '已连接'
 })
 const title = ref("正在连接服务器");
@@ -98,6 +98,7 @@ const clickJoin = () => {
 
 // 点击离开房间
 const clickLeave = () => {
+  console.log('点击离开')
   socket.emit("leave", {roomId: roomId.value, name: name.value});
   roomId.value = "";
 };
@@ -116,6 +117,13 @@ const clickSend = () => {
   msg.value = "";
 }
 
+const sameRoomUser = ref('')
+
+// 获取当前房间在线人数，先发送房间id
+const getOnlineNumber = () => {
+  socket.emit("sendRoomId", {roomId: roomId.value});
+}
+
 
 onMounted(() => {
 
@@ -125,6 +133,7 @@ onMounted(() => {
     title.value = "连接服务器成功";
     connectionStatus.value = "success";
     ElMessage.success("连接服务器成功");
+    getOnlineNumber();
   });
 
   // 房间好友上线通知
@@ -139,7 +148,8 @@ onMounted(() => {
       }
       connectionStatus.value = name.value === data.name ? 'success' : connectionStatus.value;
     }
-    ElMessage.info(`${data.name}${data.status === 'join' ? '加入' : '离开'}了[${data.roomId}房间]`);
+    getOnlineNumber();
+    ElMessage[data.status === 'join' ? 'success' : 'info'](`${data.name}${data.status === 'join' ? '加入' : '离开'}了[${data.roomId}房间]`);
   });
 
   // 收到的消息
@@ -155,6 +165,11 @@ onMounted(() => {
     socket.close();
     connectionStatus.value = 'fail';
     ElMessage.error('连接服务器超时')
+  });
+  // 获取当前在线人数
+  socket.on("getOnlineNumber", (res) => {
+    console.log(res.toString())
+    sameRoomUser.value = res.toString();
   });
 });
 

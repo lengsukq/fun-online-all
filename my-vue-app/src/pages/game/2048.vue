@@ -77,7 +77,6 @@ onMounted(() => {
   window.addEventListener('keydown', listener);
   socket.on("connect", () => {
     connectionStatus.value = "success";
-
     ElMessage.success("连接服务器成功");
   });
   clickJoin();

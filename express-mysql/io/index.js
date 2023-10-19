@@ -16,25 +16,13 @@ module.exports = function (server) {
     // socket.in（room）
     // socket.to（房间）的同义词。
     io.on("connect", (socket) => {
-        // 游戏数据传输
-        socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
-            console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
-            console.log('roomInfo',roomInfo)
-            gameInfo['name'] = name;
-            io.in(roomId).emit("receiveGameInfo", gameInfo);
-        });
-
         // 加入房间并通知
         socket.on("join", ({roomId, name}) => {
             console.log(`${name}进入[${roomId}房间]`);
-            // for (let key in socket) {
-            //     console.log(`${key}`, socket[key]);
-            // }
             if (roomInfo[`${roomId}`]){
                 roomInfo[`${roomId}`].push(name);
             }else{
                 roomInfo[`${roomId}`]=[name];
-
             }
             socket.join(roomId);
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'join'});
@@ -52,6 +40,20 @@ module.exports = function (server) {
         socket.on("sendMsgByRoom", ({roomId, name, msg}) => {
             console.log(`${name}发送消息到[${roomId}房间]:`, msg);
             io.in(roomId).emit("receiveMsg", socket.id, name, msg);
+        });
+
+        // 游戏数据传输
+        socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
+            console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
+            console.log('roomInfo',roomInfo)
+            gameInfo['name'] = name;
+            io.in(roomId).emit("receiveGameInfo", gameInfo);
+        });
+
+        // 获取当前在线人数
+        socket.on("sendRoomId", ({roomId}) => {
+            console.log('当前roomId',roomId)
+            io.in(roomId).emit("getOnlineNumber", roomInfo[roomId]);
         });
     });
 
