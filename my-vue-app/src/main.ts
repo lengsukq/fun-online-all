@@ -4,8 +4,9 @@ import App from './App.vue';
 import router from "./router";
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import vant from 'vant';
+import 'vant/lib/index.css';
 
-console.log(ElementPlus,typeof ElementPlus)
 const app = createApp(App)
 // @ts-ignore
-app.use(ElementPlus).use(router).mount('#app');
+app.use(ElementPlus).use(router).use(vant).mount('#app');
