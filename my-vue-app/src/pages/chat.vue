@@ -29,7 +29,9 @@
     <el-form-item>
       <el-button type="primary" @click="reOpen" v-if="connectionStatus==='fail'">重新连接</el-button>
     </el-form-item>
-
+    <el-form-item v-if="connectionStatus==='inside'">
+      <el-button type="primary" @click="toPage('2048')">2048</el-button>
+    </el-form-item>
   </el-form>
 
 
@@ -39,6 +41,7 @@
 import {onMounted, onUnmounted, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 import socketAct from '../hook/socketAct.ts'
+import {useRouter} from "vue-router";
 // 添加 beforeunload 事件监听器
 window.addEventListener("beforeunload", () => {
   if (roomId && connectionStatus.value === 'inside') {
@@ -116,15 +119,28 @@ const clickSend = () => {
   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: msg.value});
   msg.value = "";
 }
+const router = useRouter();
+const toPage = (itemName:String)=>{
+  let toPageObj = {
+    '2048':()=>{
+      router.push({
+        path:`/2048`,
+        query:{
+          name:name.value,
+          roomId:roomId.value,
+        }
+      })
+    }
+  }
+  toPageObj[itemName]();
 
+}
 const sameRoomUser = ref('')
 
 // 获取当前房间在线人数，先发送房间id
 const getOnlineNumber = () => {
   socket.emit("sendRoomId", {roomId: roomId.value});
 }
-
-
 onMounted(() => {
 
   scrollToBottom();
