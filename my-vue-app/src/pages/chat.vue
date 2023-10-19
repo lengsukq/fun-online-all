@@ -1,5 +1,5 @@
 <template>
-  <el-scrollbar height="400px" v-show="connectionStatus==='inside'" ref="chatContent">
+  <el-scrollbar :max-height="scrollbarHeight" v-show="connectionStatus==='inside'" ref="chatContent">
     <div ref="inChatContent">
       <p v-for="(item, index) in arr" :key="index">{{ item }}</p>
     </div>
@@ -49,6 +49,9 @@ window.addEventListener("beforeunload", () => {
   }
   return true;
 });
+
+const scrollbarHeight = ref(Math.round(0.25 * window.innerHeight)+'px');
+
 onUnmounted(()=>{
   window.removeEventListener('beforeunload', () => {})
 })

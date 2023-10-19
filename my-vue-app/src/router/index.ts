@@ -3,7 +3,11 @@ import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
-        redirect:'/chat',
+        redirect: '/chat',
+    },
+    {
+        path: '/studyBySelf',
+        redirect: '/studyBySelf/welcome',
         children: [
             {
                 path: 'welcome',
@@ -60,9 +64,14 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'provide-inject',
                 component: () => import('../pages/studyBySelf/provide-inject.vue')
-            },  {
+            },
+            {
                 path: 'axios',
                 component: () => import('../pages/studyBySelf/axios.vue')
+            },
+            {
+                path: 'FloatingPanel',
+                component: () => import('../pages/studyBySelf/FloatingPanel.vue')
             },
         ]
     },

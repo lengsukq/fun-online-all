@@ -41,6 +41,12 @@ module.exports = function (server) {
             io.in(roomId).emit("receiveMsg", socket.id, name, msg);
         });
 
+        // 获取当前在线人数
+        socket.on("sendRoomId", ({roomId}) => {
+            console.log('当前roomId',roomId)
+            io.in(roomId).emit("getOnlineNumber", roomInfo[roomId]);
+        });
+
         // 游戏数据传输
         socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
             console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
@@ -49,11 +55,6 @@ module.exports = function (server) {
             io.in(roomId).emit("receiveGameInfo", gameInfo);
         });
 
-        // 获取当前在线人数
-        socket.on("sendRoomId", ({roomId}) => {
-            console.log('当前roomId',roomId)
-            io.in(roomId).emit("getOnlineNumber", roomInfo[roomId]);
-        });
-    });
 
+    });
 }
