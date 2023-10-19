@@ -30,8 +30,7 @@ module.exports = function (server) {
         // 离开房间并通知
         socket.on("leave", ({roomId, name}) => {
             console.log(`${name}离开[${roomId}房间]`,roomInfo[roomId]);
-
-            roomInfo[roomId] = roomInfo[roomId]?roomInfo[roomId].filter((item) => item !== roomId):roomInfo[roomId];
+            roomInfo[roomId] = roomInfo[roomId]?roomInfo[roomId].filter((item) => item !== name):roomInfo[roomId];
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'leave'});
             socket.leave(roomId);
         });
