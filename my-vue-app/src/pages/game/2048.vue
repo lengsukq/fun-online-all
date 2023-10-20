@@ -367,24 +367,22 @@ function listener(e) {
 // 从主组件接收游戏数据
 import {gameDateStore} from "@/hook/gameData.ts";
 const recGameInfoStore = gameDateStore();
+console.log('从主组件接收游戏数据recGameInfoStore',recGameInfoStore.recGameInfo)
 recGameInfoStore.$subscribe((mutation, state) =>{
-  console.log('recGameInfoStore.$subscribe',state)
-})
-watch(recGameInfoStore,(newVal)=>{
-  console.log('接收端收到游戏数据newVal',newVal,name.value.toString())
-  if (newVal.name !== name.value.toString()) {
-    if (newVal.isInit) {
+  console.log('recGameInfoStore.$subscribe',state.recGameInfo)
+  let recGameInfo = state.recGameInfo
+  if (recGameInfo.name !== name.value.toString()) {
+    if (recGameInfo.isInit) {
       isReceive = true;
-      initGame(false, newVal)
+      initGame(false, recGameInfo)
     } else {
       isReceive = true;
-      direction.value = newVal.direction;
-      moveNum.value = newVal.moveNum;
+      direction.value = recGameInfo.direction;
+      moveNum.value = recGameInfo.moveNum;
       onTouchEnd();
     }
   }
 })
-
 
 onUnmounted(() => {
   window.removeEventListener('keydown', listener)
