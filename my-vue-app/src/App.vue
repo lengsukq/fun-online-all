@@ -1,9 +1,14 @@
 <script lang="ts" setup>
-
+import myFloatingPanel from './pages/studyBySelf/FloatingPanel.vue'
 </script>
 
 <template>
-  <router-view></router-view>
+  <myFloatingPanel></myFloatingPanel>
+
+  <keep-alive>
+    <router-view></router-view>
+  </keep-alive>
+
 </template>
 
 <style scoped>

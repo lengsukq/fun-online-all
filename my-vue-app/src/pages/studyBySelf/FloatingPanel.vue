@@ -24,9 +24,13 @@ const height = ref(anchors[0]);
 </script>
 
 
-<style scoped>
+<style scoped lang="less">
 .van-floating-panel {
   border-top: 1px solid #dcdde2;
   background: rgba(255, 255, 255, 0.5);
+}
+/deep/.van-floating-panel__content{
+  background: rgba(255, 255, 255, 0);
+
 }
 </style>

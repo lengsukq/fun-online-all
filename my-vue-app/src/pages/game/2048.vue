@@ -4,7 +4,7 @@
     <div>
       <el-button type="primary" @click="initGame">开始游戏</el-button>
       总分： {{ score }} <br>
-      {{ nameList.toString() }}当前在[{{ roomId }}]号房间
+<!--      {{ nameList.toString() }}当前在[{{ roomId }}]号房间-->
       <h5 v-for="(item,index) in arr" :key="index">
         {{ item }}
       </h5>
@@ -421,6 +421,7 @@ onUnmounted(() => {
 <style scoped>
 .gameContainer {
   display: flex;
+  flex-direction: column;
 }
 
 .title {
