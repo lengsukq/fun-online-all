@@ -137,10 +137,10 @@ const clickSend = () => {
   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: msg.value});
   msg.value = "";
 }
-const router = useRouter();
 const toPage = (itemName:String)=>{
       let toPageObj = {
-        '2048': '/game/2048'
+        '2048': '/game/2048',
+        'index': '/studyBySelf/welcome'
       }
       router.push({
         path:toPageObj[itemName],
@@ -154,9 +154,13 @@ const sameRoomUser = ref('')
 const getOnlineNumber = () => {
   socket.emit("sendRoomId", {roomId: roomId.value});
 }
+// 存储游戏数据
 import {gameDateStore} from "@/hook/gameData.ts";
 const recGameInfoStore = gameDateStore();
 
+// 判断路由是否在首页
+const router = useRouter();
+const currentRoute = router.currentRoute;
 
 
 onMounted(() => {
@@ -168,6 +172,15 @@ onMounted(() => {
     title.value = "连接服务器成功";
     connectionStatus.value = "success";
     ElMessage.success("连接服务器成功");
+    setTimeout(()=>{
+      let pathRoute = router.currentRoute.value.path
+      console.log('当前路由',pathRoute)
+      if(pathRoute !=='/studyBySelf/welcome'){
+        toPage('index')
+      }
+    },500)
+
+
     getOnlineNumber();
   });
 
