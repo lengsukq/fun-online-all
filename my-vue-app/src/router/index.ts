@@ -76,13 +76,19 @@ const routes: Array<RouteRecordRaw> = [
         ]
     },
     {
-        path: '/2048',
-        component: () => import('../pages/game/2048.vue')
+        path: '/game',
+        children: [
+            {
+                path: '2048',
+                component: () => import('../pages/game/2048.vue')
+            },
+            {
+                path: '2048_original',
+                component: () => import('../pages/game/2048_original.vue')
+            },
+        ]
     },
-    {
-        path: '/2048_original',
-        component: () => import('../pages/game/2048_original.vue')
-    },
+
     {
         path: '/chat',
         component: () => import('../pages/chat.vue')

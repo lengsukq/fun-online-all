@@ -38,10 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, reactive, ref} from "vue";
+import {onMounted, onUnmounted, reactive, ref,watch,provide,inject} from "vue";
 import {ElMessage} from "element-plus";
 import socketAct from '../hook/socketAct.ts'
 import {useRouter} from "vue-router";
+import {userInfoStore} from '@/store/userInfo.ts'
+const userInfo = userInfoStore();
+
 // 添加 beforeunload 事件监听器
 window.addEventListener("beforeunload", () => {
   if (roomId && connectionStatus.value === 'inside') {
@@ -64,6 +67,17 @@ const statusText = reactive({
   'inside': '已加入',
   'success': '已连接'
 })
+
+watch(connectionStatus, (newVal, oldVal) =>{
+  if(newVal==='inside'){
+    userInfo.changeVal('name',name.value);
+    userInfo.changeVal('roomId',roomId.value);
+    userInfo.changeVal('connectionStatus',connectionStatus.value);
+
+  }
+  console.log('watch之后userInfo：',userInfo.name,userInfo.roomId)
+})
+
 const title = ref("正在连接服务器");
 
 const reOpen = () => {
@@ -98,6 +112,7 @@ const clickJoin = () => {
     return;
   }
   arr.value.length = 0;
+
   getHistory(roomId.value)
   socket.emit("join", {roomId: roomId.value, name: name.value});
 };
@@ -124,18 +139,13 @@ const clickSend = () => {
 }
 const router = useRouter();
 const toPage = (itemName:String)=>{
-  let toPageObj = {
-    '2048':()=>{
+      let toPageObj = {
+        '2048': '/game/2048'
+      }
       router.push({
-        path:`/2048`,
-        query:{
-          name:name.value,
-          roomId:roomId.value,
-        }
+        path:toPageObj[itemName],
       })
-    }
-  }
-  toPageObj[itemName]();
+
 
 }
 const sameRoomUser = ref('')
@@ -144,8 +154,14 @@ const sameRoomUser = ref('')
 const getOnlineNumber = () => {
   socket.emit("sendRoomId", {roomId: roomId.value});
 }
+import {gameDateStore} from "@/hook/gameData.ts";
+const recGameInfoStore = gameDateStore();
+
+
+
 onMounted(() => {
 
+  // 聊天框滚动到底部
   scrollToBottom();
   // 连接成功
   socket.on("connect", () => {
@@ -190,6 +206,13 @@ onMounted(() => {
     console.log(res.toString())
     sameRoomUser.value = res.toString();
   });
+
+  // 收到的游戏数据
+  socket.on("receiveGameInfo", (recGameInfo) => {
+    console.log('chat组件收到的游戏数据', recGameInfo);
+    recGameInfoStore.changeVal('recGameInfo',recGameInfo)
+  });
+
 });
 
 </script>

@@ -25,39 +25,21 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, reactive, ref} from 'vue'
+import {inject, onMounted, onUnmounted, reactive, ref,watch} from 'vue'
 import NumberBlock from '../studyBySelf/NumberBlock.vue'
 import socketAct from '../../hook/socketAct.ts'
 import {ElMessage} from "element-plus";
-import {useRouter} from "vue-router";
-// 添加 beforeunload 事件监听器
-window.addEventListener("beforeunload", () => {
-  clickLeave();
-  return true;
-});
+
 const setNumBlock = ref(1)
 const socket = socketAct.socketInit();
 const roomId = ref(''), name = ref(''), nameList = reactive([]);
-const connectionStatus = ref<string>('fail');
 const arr = reactive([]);
-const router = useRouter();
-let query = router.currentRoute.value.query;
-roomId.value = <string>query.roomId;
-name.value = <string>query.name;
-// 点击加入房间
-const clickJoin = () => {
-  socket.emit("join", {roomId: roomId.value, name: name.value});
-};
-// 点击离开房间
-const clickLeave = () => {
-  socket.emit("leave", {roomId: roomId.value, name: name.value});
-  roomId.value = "";
-};
-// 发送消息
-// const clickSend = () => {
-//   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: direction.value});
-//   direction.value = "";
-// }
+
+import {userInfoStore} from '@/store/userInfo.ts'
+const userInfo = userInfoStore();
+roomId.value = <string>userInfo.roomId;
+name.value = <string>userInfo.name;
+
 const sendGameInfo = (data: object) => {
   let gameInfo = {
     name: name.value,
@@ -73,33 +55,8 @@ const sendGameInfo = (data: object) => {
 }
 let isReceive = false;
 
+
 onMounted(() => {
-  window.addEventListener('keydown', listener);
-  socket.on("connect", () => {
-    connectionStatus.value = "success";
-    ElMessage.success("连接服务器成功");
-  });
-  clickJoin();
-  // 房间好友上线通知
-  socket.on("say", (data) => {
-    console.log('房间好友上线通知', data)
-    if (data.status === 'join') {
-      connectionStatus.value = 'inside';
-      nameList.push(data.name);
-    } else if (data.status === 'leave') {
-      nameList.splice(nameList.indexOf(data.name), 1);
-      if (name.value === data.name) {
-      }
-      connectionStatus.value = name.value === data.name ? 'success' : connectionStatus.value;
-    }
-    ElMessage.info(`${data.name}${data.status === 'join' ? '加入' : '离开'}了[${data.roomId}房间]`);
-  });
-  // 收到的消息
-  socket.on("receiveMsg", (id, name, msg) => {
-    console.log(id, name, msg)
-    arr.push(`${name}：${msg}`);
-    // onTouchEnd();
-  });
   // 收到的游戏数据
   socket.on("receiveGameInfo", (recGameInfo) => {
     console.log('收到的游戏数据', recGameInfo);
@@ -407,6 +364,26 @@ function listener(e) {
   update();
   return false;
 }
+// 从主组件接收游戏数据
+import {gameDateStore} from "@/hook/gameData.ts";
+const recGameInfoStore = gameDateStore();
+recGameInfoStore.$subscribe((mutation, state) =>{
+  console.log('recGameInfoStore.$subscribe',state)
+})
+watch(recGameInfoStore,(newVal)=>{
+  console.log('接收端收到游戏数据newVal',newVal,name.value.toString())
+  if (newVal.name !== name.value.toString()) {
+    if (newVal.isInit) {
+      isReceive = true;
+      initGame(false, newVal)
+    } else {
+      isReceive = true;
+      direction.value = newVal.direction;
+      moveNum.value = newVal.moveNum;
+      onTouchEnd();
+    }
+  }
+})
 
 
 onUnmounted(() => {

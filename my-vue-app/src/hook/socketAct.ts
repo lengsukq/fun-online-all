@@ -1,4 +1,5 @@
 import io from 'socket.io-client';
+import {provide} from "vue";
 
 
 function socketInit(){
@@ -6,7 +7,4 @@ function socketInit(){
         timeout: 5000,
     });
 }
-function mountedAct(){
-
-}
-export default {socketInit,mountedAct}
+export default {socketInit}
