@@ -4,6 +4,9 @@
     <div>
       <el-button type="primary" @click="initGame">开始游戏</el-button>
       总分： {{ score }} <br>
+      <h5 v-for="(socre,name) in userScore">
+        {{`${name}:${socre}分`}}
+      </h5>
 <!--      {{ nameList.toString() }}当前在[{{ roomId }}]号房间-->
       <h5 v-for="(item,index) in arr" :key="index">
         {{ item }}
@@ -25,14 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import {inject, onMounted, onUnmounted, reactive, ref,watch} from 'vue'
+import { onMounted, onUnmounted, reactive, ref} from 'vue'
 import NumberBlock from '../studyBySelf/NumberBlock.vue'
 import socketAct from '../../hook/socketAct.ts'
 import {ElMessage} from "element-plus";
 
 const setNumBlock = ref(1)
 const socket = socketAct.socketInit();
-const roomId = ref(''), name = ref(''), nameList = reactive([]);
+const roomId = ref(''), name = ref('');
 const arr = reactive([]);
 
 import {userInfoStore} from '@/store/userInfo.ts'
@@ -55,24 +58,8 @@ const sendGameInfo = (data: object) => {
 }
 let isReceive = false;
 
+const actName = ref('测试');
 
-onMounted(() => {
-  // 收到的游戏数据
-  socket.on("receiveGameInfo", (recGameInfo) => {
-    console.log('收到的游戏数据', recGameInfo);
-    if (recGameInfo.name !== name.value.toString()) {
-      if (recGameInfo.isInit) {
-        isReceive = true;
-        initGame(false, recGameInfo)
-      } else {
-        isReceive = true;
-        direction.value = recGameInfo.direction;
-        moveNum.value = recGameInfo.moveNum;
-        onTouchEnd();
-      }
-    }
-  });
-})
 const startY = ref(0);
 const startX = ref(0);
 const onTouchStart = (event) => {
@@ -150,8 +137,12 @@ const numberList = ref([]).value;
 
 // 计分
 const score = ref(0);
+interface MyObject { [key: string]: number; }
+const userScore = ref<MyObject>({})
 
-function addScore(num) {
+function addScore(num:number) {
+  userScore.value[actName.value] = userScore.value[actName.value]?userScore.value[actName.value]+num:num
+  // console.log('userScore.value', userScore.value)
   score.value += num;
 }
 
@@ -334,7 +325,7 @@ function isEnded() {
       }
     }
   }
-  alert('您的得分是：' + score.value + '分');
+  ElMessage.info('您的得分是：' + score.value + '分')
 }
 
 function listener(e) {
@@ -369,8 +360,10 @@ import {gameDateStore} from "@/hook/gameData.ts";
 const recGameInfoStore = gameDateStore();
 console.log('从主组件接收游戏数据recGameInfoStore',recGameInfoStore.recGameInfo)
 recGameInfoStore.$subscribe((mutation, state) =>{
-  console.log('recGameInfoStore.$subscribe',state.recGameInfo)
-  let recGameInfo = state.recGameInfo
+  console.log('recGameInfoStore.$subscribe',state.recGameInfo,mutation)
+  let recGameInfo:any = state.recGameInfo;
+  actName.value = recGameInfo.name;
+
   if (recGameInfo.name !== name.value.toString()) {
     if (recGameInfo.isInit) {
       isReceive = true;

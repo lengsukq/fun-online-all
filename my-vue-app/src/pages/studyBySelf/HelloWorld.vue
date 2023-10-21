@@ -6,14 +6,13 @@ const userInfo = userInfoStore();
 // userInfo.$patch({ name: userInfo.name })
 
 //使用actions中的方法修改数据 （推荐）
-const setName = (keyWords,val) =>{
-  userInfo.changeVal(keyWords,val+userInfo[keyWords])
-}
+// const setName = (keyWords,val) =>{
+//   userInfo.changeVal(keyWords,val+userInfo[keyWords])
+// }
 </script>
 
 <template>
   <h5>hello,word!</h5>
-  <el-button @click="setName('name','1')">修改</el-button>
   <h3>{{ userInfo.name }}</h3>
 </template>
 
