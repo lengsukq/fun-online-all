@@ -1,9 +1,8 @@
 import io from 'socket.io-client';
-import {provide} from "vue";
 
 
 function socketInit(){
-    return  io("http://127.0.0.1:3000", {
+    return  io("http://43.139.164.240:3000", {
         timeout: 5000,
     });
 }

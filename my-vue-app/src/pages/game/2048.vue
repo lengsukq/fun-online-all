@@ -151,6 +151,7 @@ const gameInfo = reactive({});
 // 初始化游戏
 function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
   setNumBlock.value += setNumBlock.value;
+  userScore.value = {};
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
@@ -304,7 +305,7 @@ function moveTo(self, x, y) { // 判断下一格是否能移动，以及是否�
 function update() {
   if (_moved) {
     _moved = false;
-    console.log('进行判断是否是接收端', isReceive)
+    // console.log('进行判断是否是接收端', isReceive)
     if (!isReceive) {
       let num = Math.floor(Math.random() * 16);
       random(num);
