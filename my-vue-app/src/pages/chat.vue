@@ -7,7 +7,7 @@
   </el-scrollbar>
   <h1 v-if="connectionStatus!=='inside'">Chat Rom</h1>
   <h3>状态：{{ statusText[connectionStatus] }}</h3>
-  <h3 v-if="connectionStatus==='inside'">当前房间在线：{{sameRoomUser}}</h3>
+  <h3 v-if="connectionStatus==='inside'">当前房间在线：{{ sameRoomUser }}</h3>
   <el-form>
     <el-form-item label="昵称：">
       <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus==='inside'"/>
@@ -30,7 +30,7 @@
       <el-button type="primary" @click="reOpen" v-if="connectionStatus==='fail'">重新连接</el-button>
     </el-form-item>
     <el-form-item v-if="connectionStatus==='inside'">
-      <el-button type="primary" @click="toPage('2048')">2048</el-button>
+      <el-button type="primary" @click="getGameStatus('2048')">2048</el-button>
     </el-form-item>
   </el-form>
 
@@ -38,11 +38,14 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, reactive, ref,watch,provide,inject} from "vue";
+import {onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import {ElMessage} from "element-plus";
 import socketAct from '../hook/socketAct.ts'
 import {useRouter} from "vue-router";
 import {userInfoStore} from '@/store/userInfo.ts'
+// 存储游戏数据
+import {gameDateStore} from "@/store/gameData.ts";
+
 const userInfo = userInfoStore();
 
 // 添加 beforeunload 事件监听器
@@ -53,12 +56,13 @@ window.addEventListener("beforeunload", () => {
   return true;
 });
 
-const scrollbarHeight = ref(Math.round(0.25 * window.innerHeight)+'px');
+const scrollbarHeight = ref(Math.round(0.25 * window.innerHeight) + 'px');
 
-onUnmounted(()=>{
-  window.removeEventListener('beforeunload', () => {})
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', () => {
+  })
 })
-console.log('socketInit',socketAct)
+console.log('socketInit', socketAct)
 const socket = socketAct.socketInit();
 
 const connectionStatus = ref<string>('fail');
@@ -68,14 +72,14 @@ const statusText = reactive({
   'success': '已连接'
 })
 
-watch(connectionStatus, (newVal, oldVal) =>{
-  if(newVal==='inside'){
-    userInfo.changeVal('name',name.value);
-    userInfo.changeVal('roomId',roomId.value);
-    userInfo.changeVal('connectionStatus',connectionStatus.value);
+watch(connectionStatus, (newVal, oldVal) => {
+  if (newVal === 'inside') {
+    userInfo.changeVal('name', name.value);
+    userInfo.changeVal('roomId', roomId.value);
+    userInfo.changeVal('connectionStatus', connectionStatus.value);
 
   }
-  console.log('watch之后userInfo：',userInfo.name,userInfo.roomId)
+  console.log('watch之后userInfo：', userInfo.name, userInfo.roomId)
 })
 
 const title = ref("正在连接服务器");
@@ -137,14 +141,16 @@ const clickSend = () => {
   socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: msg.value});
   msg.value = "";
 }
-const toPage = (itemName:String)=>{
-      let toPageObj = {
-        '2048': '/game/2048',
-        'index': '/studyBySelf/welcome'
-      }
-      router.push({
-        path:toPageObj[itemName],
-      })
+
+let toPageObj = {
+  '2048': '/game/2048',
+  'index': '/studyBySelf/welcome'
+}
+const toPage = (itemName: String) => {
+
+  router.push({
+    path: toPageObj[itemName],
+  })
 
 
 }
@@ -154,14 +160,29 @@ const sameRoomUser = ref('')
 const getOnlineNumber = () => {
   socket.emit("sendRoomId", {roomId: roomId.value});
 }
-// 存储游戏数据
-import {gameDateStore} from "@/hook/gameData.ts";
+
 const recGameInfoStore = gameDateStore();
 
 // 判断路由是否在首页
 const router = useRouter();
 const currentRoute = router.currentRoute;
 
+const getGameStatus = (gameName: string) => {
+  socket.emit("sendGameStatus", {
+    roomId: roomId.value,
+    gameName: gameName,
+    actType: 'getInfo',
+  });
+}
+const sendUserInfo = () => {
+  console.log('sendUserInfo',recGameInfoStore.gameStatus)
+  socket.emit("sendUserInfo", {
+    roomId: roomId.value,
+    name: name.value,
+    actType: router.currentRoute.value.path.toString(),
+    gameStatus: recGameInfoStore.gameStatus
+  });
+}
 
 onMounted(() => {
 
@@ -172,13 +193,13 @@ onMounted(() => {
     title.value = "连接服务器成功";
     connectionStatus.value = "success";
     ElMessage.success("连接服务器成功");
-    setTimeout(()=>{
+    setTimeout(() => {
       let pathRoute = router.currentRoute.value.path
-      console.log('当前路由',pathRoute)
-      if(pathRoute !=='/studyBySelf/welcome'){
+      console.log('当前路由', pathRoute)
+      if (pathRoute !== '/studyBySelf/welcome') {
         toPage('index')
       }
-    },500)
+    }, 500)
 
 
     getOnlineNumber();
@@ -223,7 +244,23 @@ onMounted(() => {
   // 收到的游戏数据
   socket.on("receiveGameInfo", (recGameInfo) => {
     console.log('chat组件收到的游戏数据', recGameInfo);
-    recGameInfoStore.changeVal('recGameInfo',recGameInfo)
+    recGameInfoStore.changeVal('recGameInfo', recGameInfo)
+  });
+
+  // 收到的游戏状态
+  socket.on("receiveGameStatus", (gameName,gameStatus) => {
+    console.log('chat组件收到的游戏状态', gameName, gameStatus);
+    if (gameStatus === 'gaming') {
+      ElMessage.warning('房间正在有人游戏中')
+    }else{
+      toPage(gameName)
+    }
+  });
+
+  // 接收更新用户数据命令
+  socket.on("receiveUpDateCommand", () => {
+    console.log('接收更新用户数据命令')
+    sendUserInfo();
   });
 
 });

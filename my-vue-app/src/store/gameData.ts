@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const gameDateStore = defineStore('gameDate', {
     state: () => {
-        return { recGameInfo:{name:1},connectionStatus:'fail'}
+        return { recGameInfo:{name:1},gameStatus:'over'}
     },
     // 也可以这样定义
     // state: () => ({ count: 0 })

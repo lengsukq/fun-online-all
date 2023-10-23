@@ -5,9 +5,9 @@
       <el-button type="primary" @click="initGame">开始游戏</el-button>
       总分： {{ score }} <br>
       <h5 v-for="(socre,name) in userScore">
-        {{`${name}:${socre}分`}}
+        {{ `${name}:${socre}分` }}
       </h5>
-<!--      {{ nameList.toString() }}当前在[{{ roomId }}]号房间-->
+      <!--      {{ nameList.toString() }}当前在[{{ roomId }}]号房间-->
       <h5 v-for="(item,index) in arr" :key="index">
         {{ item }}
       </h5>
@@ -28,17 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref} from 'vue'
+import {onUnmounted, reactive, ref} from 'vue'
 import NumberBlock from '../studyBySelf/NumberBlock.vue'
 import socketAct from '../../hook/socketAct.ts'
 import {ElMessage} from "element-plus";
+import {userInfoStore} from '@/store/userInfo.ts'
+// 从主组件接收游戏数据
+import {gameDateStore} from "@/store/gameData.ts";
 
 const setNumBlock = ref(1)
 const socket = socketAct.socketInit();
 const roomId = ref(''), name = ref('');
 const arr = reactive([]);
 
-import {userInfoStore} from '@/store/userInfo.ts'
 const userInfo = userInfoStore();
 roomId.value = <string>userInfo.roomId;
 name.value = <string>userInfo.name;
@@ -137,19 +139,35 @@ const numberList = ref([]).value;
 
 // 计分
 const score = ref(0);
-interface MyObject { [key: string]: number; }
+
+interface MyObject {
+  [key: string]: number;
+}
+
 const userScore = ref<MyObject>({})
 
-function addScore(num:number) {
-  userScore.value[actName.value] = userScore.value[actName.value]?userScore.value[actName.value]+num:num
+function addScore(num: number) {
+  userScore.value[actName.value] = userScore.value[actName.value] ? userScore.value[actName.value] + num : num
   // console.log('userScore.value', userScore.value)
   score.value += num;
 }
+
+// 发送当前游戏状态
+const sendGameStatus = (actType) => {
+  socket.emit("sendGameStatus", {
+    roomId: roomId.value,
+    gameName: '2048',
+    actType: actType,
+  });
+}
+
 
 const gameInfo = reactive({});
 
 // 初始化游戏
 function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
+  sendGameStatus('gaming');
+  recGameInfoStore.gameStatus.changeVal(gameStatus,'gaming');
   setNumBlock.value += setNumBlock.value;
   userScore.value = {};
   uid = 0;
@@ -326,6 +344,8 @@ function isEnded() {
       }
     }
   }
+  sendGameStatus('over');
+  recGameInfoStore.gameStatus.changeVal(gameStatus,'over');
   ElMessage.info('您的得分是：' + score.value + '分')
 }
 
@@ -356,13 +376,12 @@ function listener(e) {
   update();
   return false;
 }
-// 从主组件接收游戏数据
-import {gameDateStore} from "@/hook/gameData.ts";
+
 const recGameInfoStore = gameDateStore();
-console.log('从主组件接收游戏数据recGameInfoStore',recGameInfoStore.recGameInfo)
-recGameInfoStore.$subscribe((mutation, state) =>{
-  console.log('recGameInfoStore.$subscribe',state.recGameInfo,mutation)
-  let recGameInfo:any = state.recGameInfo;
+console.log('从主组件接收游戏数据recGameInfoStore', recGameInfoStore.recGameInfo)
+recGameInfoStore.$subscribe((mutation, state) => {
+  console.log('recGameInfoStore.$subscribe', state.recGameInfo, mutation)
+  let recGameInfo: any = state.recGameInfo;
   actName.value = recGameInfo.name;
 
   if (recGameInfo.name !== name.value.toString()) {

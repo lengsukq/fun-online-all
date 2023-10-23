@@ -1,7 +1,10 @@
 // 将server作为参数传入
 const {Server} = require("socket.io");
 module.exports = function (server) {
-    let roomInfo = {};
+    let roomInfo = {
+        nameList: [],
+        gameInfo: {},
+    };
 
     //  cors: true 跨域允许，不然前端会报跨域错误
     let io = new Server(server, {cors: true});
@@ -19,18 +22,18 @@ module.exports = function (server) {
         // 加入房间并通知
         socket.on("join", ({roomId, name}) => {
             console.log(`${name}进入[${roomId}房间]`);
-            if (roomInfo[`${roomId}`]){
-                roomInfo[`${roomId}`].push(name);
-            }else{
-                roomInfo[`${roomId}`]=[name];
+            if (roomInfo.nameList[`${roomId}`]) {
+                roomInfo.nameList[`${roomId}`].push(name);
+            } else {
+                roomInfo.nameList[`${roomId}`] = [name];
             }
             socket.join(roomId);
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'join'});
         });
         // 离开房间并通知
         socket.on("leave", ({roomId, name}) => {
-            console.log(`${name}离开[${roomId}房间]`,roomInfo[roomId]);
-            roomInfo[roomId] = roomInfo[roomId]?roomInfo[roomId].filter((item) => item !== name):roomInfo[roomId];
+            console.log(`${name}离开[${roomId}房间]`, roomInfo.nameList[roomId]);
+            roomInfo.nameList[roomId] = roomInfo.nameList[roomId] ? roomInfo.nameList[roomId].filter((item) => item !== name) : roomInfo.nameList[roomId];
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'leave'});
             socket.leave(roomId);
         });
@@ -43,16 +46,38 @@ module.exports = function (server) {
 
         // 获取当前在线人数
         socket.on("sendRoomId", ({roomId}) => {
-            console.log('当前roomId',roomId)
-            io.in(roomId).emit("getOnlineNumber", roomInfo[roomId]);
+            console.log('当前roomId', roomId)
+            io.in(roomId).emit("getOnlineNumber", roomInfo.nameList[roomId]);
         });
 
         // 游戏数据传输
-        socket.on("sendGameInfo", ({name,roomId,gameInfo}) => {
+        socket.on("sendGameInfo", ({name, roomId, gameInfo}) => {
             console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
-            console.log('roomInfo',roomInfo)
+            console.log('roomInfo.nameList', roomInfo.nameList)
             gameInfo['name'] = name;
             io.in(roomId).emit("receiveGameInfo", gameInfo);
+        });
+
+        // 发送房间游戏状态
+        socket.on("sendGameStatus", async ({roomId, gameName, actType}) => {
+            console.log(`roomId:${roomId},gameName:${gameName},actType:${actType}`);
+            await upDataUserInfo(roomId);
+
+            if (actType !== 'getInfo') {
+                roomInfo.gameInfo[gameName] = actType;
+            } else {
+                io.in(roomId).emit("receiveGameStatus", gameName,roomInfo.gameInfo[gameName]);
+            }
+        });
+        // 主动更新用户数据
+        function upDataUserInfo (roomId){
+            // 向房间所有人发送广播，更新房间数据
+            console.log('向房间所有人发送广播，更新房间数据')
+            io.in(roomId).emit("receiveUpDateCommand");
+        }
+        // 接收用户数据
+        socket.on("sendUserInfo", ({roomId, name, path,gameStatus}) => {
+            console.log(`roomId:${roomId},name:${name},path:${path},gameStatus:${gameStatus}`);
         });
 
 
