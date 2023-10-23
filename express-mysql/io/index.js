@@ -4,6 +4,7 @@ module.exports = function (server) {
     let roomInfo = {
         nameList: [],
         gameInfo: {},
+        gameRoom: {}
     };
 
     //  cors: true 跨域允许，不然前端会报跨域错误
@@ -61,23 +62,34 @@ module.exports = function (server) {
         // 发送房间游戏状态
         socket.on("sendGameStatus", async ({roomId, gameName, actType}) => {
             console.log(`roomId:${roomId},gameName:${gameName},actType:${actType}`);
-            await upDataUserInfo(roomId);
-
             if (actType !== 'getInfo') {
                 roomInfo.gameInfo[gameName] = actType;
             } else {
-                io.in(roomId).emit("receiveGameStatus", gameName,roomInfo.gameInfo[gameName]);
+                await upDataUserInfo(roomId,gameName);
+
             }
+
         });
+
+
         // 主动更新用户数据
-        function upDataUserInfo (roomId){
+        function upDataUserInfo(roomId,gameName) {
             // 向房间所有人发送广播，更新房间数据
             console.log('向房间所有人发送广播，更新房间数据')
-            io.in(roomId).emit("receiveUpDateCommand");
+            io.in(roomId).emit("receiveUpDateCommand",gameName);
         }
+
         // 接收用户数据
-        socket.on("sendUserInfo", ({roomId, name, path,gameStatus}) => {
+        socket.on("sendUserInfo", ({roomId, name, path, gameName,gameStatus}) => {
             console.log(`roomId:${roomId},name:${name},path:${path},gameStatus:${gameStatus}`);
+            console.log('recUpDataUserInfoCount',roomInfo.nameList[roomId].length);
+            roomInfo.gameRoom[roomId.toString()] = roomInfo.gameRoom[roomId.toString()]?roomInfo.gameRoom[roomId.toString()]:{};
+            roomInfo.gameRoom[roomId.toString()][path.toString()] = roomInfo.gameRoom[roomId.toString()][path.toString()]?roomInfo.gameRoom[roomId.toString()][path.toString()].push(gameStatus):[gameStatus];
+
+            if (roomInfo.gameRoom[roomId.toString()][path.toString()].length===roomInfo.nameList[roomId].length){
+                io.in(roomId).emit("receiveGameStatus", gameName, roomInfo.gameRoom[roomId.toString()][path.toString()].includes('gaming'));
+            }
+
         });
 
 

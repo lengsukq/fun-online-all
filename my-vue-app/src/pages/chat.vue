@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, reactive, ref, watch} from "vue";
+import {onMounted, onUnmounted, reactive, ref, watch,computed} from "vue";
 import {ElMessage} from "element-plus";
 import socketAct from '../hook/socketAct.ts'
 import {useRouter} from "vue-router";
@@ -146,6 +146,17 @@ let toPageObj = {
   '2048': '/game/2048',
   'index': '/studyBySelf/welcome'
 }
+
+let pathObj = computed({
+  get:()=>{
+    const result = {};
+
+    for (const [key, value] of Object.entries(toPageObj)) {
+      result[value] = key;
+    }
+    return result;
+  }
+})
 const toPage = (itemName: String) => {
 
   router.push({
@@ -165,7 +176,6 @@ const recGameInfoStore = gameDateStore();
 
 // 判断路由是否在首页
 const router = useRouter();
-const currentRoute = router.currentRoute;
 
 const getGameStatus = (gameName: string) => {
   socket.emit("sendGameStatus", {
@@ -174,13 +184,13 @@ const getGameStatus = (gameName: string) => {
     actType: 'getInfo',
   });
 }
-const sendUserInfo = () => {
-  console.log('sendUserInfo',recGameInfoStore.gameStatus)
+const sendUserInfo = (gameName) => {
   socket.emit("sendUserInfo", {
     roomId: roomId.value,
     name: name.value,
-    actType: router.currentRoute.value.path.toString(),
-    gameStatus: recGameInfoStore.gameStatus
+    path: pathObj.value[router.currentRoute.value.path],
+    gameName:gameName,
+    gameStatus: pathObj.value[router.currentRoute.value.path]==='index'?'over':recGameInfoStore.gameStatus,
   });
 }
 
@@ -248,19 +258,19 @@ onMounted(() => {
   });
 
   // 收到的游戏状态
-  socket.on("receiveGameStatus", (gameName,gameStatus) => {
+  socket.on("receiveGameStatus", (gameName, gameStatus) => {
     console.log('chat组件收到的游戏状态', gameName, gameStatus);
-    if (gameStatus === 'gaming') {
+    if (gameStatus) {
       ElMessage.warning('房间正在有人游戏中')
-    }else{
+    } else {
       toPage(gameName)
     }
   });
 
   // 接收更新用户数据命令
-  socket.on("receiveUpDateCommand", () => {
+  socket.on("receiveUpDateCommand", (gameName) => {
     console.log('接收更新用户数据命令')
-    sendUserInfo();
+    sendUserInfo(gameName);
   });
 
 });
