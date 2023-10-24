@@ -3,8 +3,9 @@ const {Server} = require("socket.io");
 module.exports = function (server) {
     let roomInfo = {
         nameList: [],
-        gameInfo: {},
-        gameRoom: {}
+        nameId: {},
+        gameRoom: {},
+        userInfo: [],
     };
 
     //  cors: true 跨域允许，不然前端会报跨域错误
@@ -20,6 +21,13 @@ module.exports = function (server) {
     // socket.in（room）
     // socket.to（房间）的同义词。
     io.on("connect", (socket) => {
+        // 获取用户信息
+        const userId = socket.id;
+        const ip = socket.remoteAddress;
+        const port = socket.remotePort;
+
+        // 处理用户信息
+        console.log(`用户 ${userId} 连接成功，IP 地址为 ${ip}，端口号为 ${port}`);
         // 加入房间并通知
         socket.on("join", ({roomId, name}) => {
             console.log(`${name}进入[${roomId}房间]`);
@@ -28,6 +36,8 @@ module.exports = function (server) {
             } else {
                 roomInfo.nameList[`${roomId}`] = [name];
             }
+            roomInfo.nameId[name] = userId;
+            console.log('roomInfo.nameId', roomInfo.nameId)
             socket.join(roomId);
             io.in(roomId).emit("say", {name: name, roomId: roomId, status: 'join'});
         });
@@ -52,42 +62,54 @@ module.exports = function (server) {
         });
 
         // 游戏数据传输
-        socket.on("sendGameInfo", ({name, roomId, gameInfo}) => {
-            console.log(`${name}传输游戏数据到[${roomId}房间]:`, gameInfo);
+        socket.on("sendGameInfo", ({name, roomId, path}) => {
+            console.log(`${name}传输游戏数据到[${roomId}房间]:`, path);
             console.log('roomInfo.nameList', roomInfo.nameList)
-            gameInfo['name'] = name;
-            io.in(roomId).emit("receiveGameInfo", gameInfo);
+            io.in(roomId).emit("receiveGameInfo", path);
         });
-
+        let sendUserId;
         // 发送房间游戏状态
-        socket.on("sendGameStatus", async ({roomId, gameName, actType}) => {
-            console.log(`roomId:${roomId},gameName:${gameName},actType:${actType}`);
-            if (actType !== 'getInfo') {
-                roomInfo.gameInfo[gameName] = actType;
-            } else {
-                await upDataUserInfo(roomId,gameName);
-
-            }
+        socket.on("sendGameStatus", ({roomId, path, actType}) => {
+            console.log(`sendGameStatus-roomId:${roomId},path:${path},actType:${actType}`);
+            sendUserId = socket.id;
+            upDataUserInfo(roomId, path);
 
         });
-
 
         // 主动更新用户数据
-        function upDataUserInfo(roomId,gameName) {
+        function upDataUserInfo(roomId, orderPath) {
             // 向房间所有人发送广播，更新房间数据
-            console.log('向房间所有人发送广播，更新房间数据')
-            io.in(roomId).emit("receiveUpDateCommand",gameName);
+            console.log('向房间所有人发送广播，更新房间数据', orderPath)
+            io.in(roomId).emit("receiveUpDateCommand", orderPath);
         }
 
         // 接收用户数据
-        socket.on("sendUserInfo", ({roomId, name, path, gameName,gameStatus}) => {
-            console.log(`roomId:${roomId},name:${name},path:${path},gameStatus:${gameStatus}`);
-            console.log('recUpDataUserInfoCount',roomInfo.nameList[roomId].length);
-            roomInfo.gameRoom[roomId.toString()] = roomInfo.gameRoom[roomId.toString()]?roomInfo.gameRoom[roomId.toString()]:{};
-            roomInfo.gameRoom[roomId.toString()][path.toString()] = roomInfo.gameRoom[roomId.toString()][path.toString()]?roomInfo.gameRoom[roomId.toString()][path.toString()].push(gameStatus):[gameStatus];
+        socket.on("sendUserInfo", ({roomId, name, path, gameStatus, orderPath}) => {
+            console.log(`roomId:${roomId},name:${name},path:${path},gameStatus:${gameStatus},orderPath:${orderPath}`);
 
-            if (roomInfo.gameRoom[roomId.toString()][path.toString()].length===roomInfo.nameList[roomId].length){
-                io.in(roomId).emit("receiveGameStatus", gameName, roomInfo.gameRoom[roomId.toString()][path.toString()].includes('gaming'));
+            roomInfo.gameRoom[roomId.toString()] = roomInfo.gameRoom[roomId] ? roomInfo.gameRoom[roomId.toString()] : {};
+            if (orderPath === path) {
+
+                if (roomInfo.gameRoom[roomId.toString()][orderPath] instanceof Array) {
+                    roomInfo.gameRoom[roomId.toString()][orderPath].push(gameStatus)
+                } else {
+                    roomInfo.gameRoom[roomId.toString()][orderPath] = [gameStatus];
+                }
+
+            }
+            roomInfo.userInfo.push({
+                roomId: roomId, name: name, path: path, gameStatus: gameStatus
+            })
+            if (roomInfo.userInfo.length === roomInfo.nameList[roomId].length) {
+                roomInfo.userInfo = [];
+                if (roomInfo.gameRoom[roomId.toString()][orderPath]) {
+                    console.log('最终传输数据', orderPath, roomInfo.gameRoom[roomId.toString()][orderPath].includes('gaming'));
+                    io.to(sendUserId).emit("receiveGameStatus", orderPath, roomInfo.gameRoom[roomId.toString()][orderPath].includes('gaming'));
+                } else {
+                    io.to(sendUserId).emit("receiveGameStatus", orderPath, false);
+                }
+                roomInfo.gameRoom[roomId.toString()][orderPath] = []
+                // io.in(roomId).emit("receiveGameStatus", orderPath, roomInfo.gameRoom[roomId.toString()][path].includes('gaming'));
             }
 
         });

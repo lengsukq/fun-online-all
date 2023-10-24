@@ -152,21 +152,11 @@ function addScore(num: number) {
   score.value += num;
 }
 
-// 发送当前游戏状态
-const sendGameStatus = (actType) => {
-  socket.emit("sendGameStatus", {
-    roomId: roomId.value,
-    gameName: '2048',
-    actType: actType,
-  });
-}
-
 
 const gameInfo = reactive({});
 
 // 初始化游戏
 function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
-  sendGameStatus('gaming');
   recGameInfoStore.changeVal('gameStatus','gaming');
   setNumBlock.value += setNumBlock.value;
   userScore.value = {};
@@ -344,7 +334,6 @@ function isEnded() {
       }
     }
   }
-  sendGameStatus('over');
   recGameInfoStore.gameStatus.changeVal('gameStatus','over');
   ElMessage.info('您的得分是：' + score.value + '分')
 }

@@ -29,8 +29,9 @@
     <el-form-item>
       <el-button type="primary" @click="reOpen" v-if="connectionStatus==='fail'">重新连接</el-button>
     </el-form-item>
-    <el-form-item v-if="connectionStatus==='inside'">
-      <el-button type="primary" @click="getGameStatus('2048')">2048</el-button>
+    <el-form-item >
+      <el-button v-if="router.currentRoute.value.path!=='/studyBySelf/welcome'" type="primary" @click="getGameStatus('/')">返回首页</el-button>
+      <el-button v-if="connectionStatus==='inside'" type="primary" @click="getGameStatus('/game/2048')">2048</el-button>
     </el-form-item>
   </el-form>
 
@@ -157,10 +158,10 @@ let pathObj = computed({
     return result;
   }
 })
-const toPage = (itemName: String) => {
+const toPage = (path: String) => {
 
   router.push({
-    path: toPageObj[itemName],
+    path: path,
   })
 
 
@@ -177,20 +178,20 @@ const recGameInfoStore = gameDateStore();
 // 判断路由是否在首页
 const router = useRouter();
 
-const getGameStatus = (gameName: string) => {
+const getGameStatus = (path: string) => {
   socket.emit("sendGameStatus", {
     roomId: roomId.value,
-    gameName: gameName,
+    path: path,
     actType: 'getInfo',
   });
 }
-const sendUserInfo = (gameName) => {
+const sendUserInfo = (orderPath) => {
   socket.emit("sendUserInfo", {
     roomId: roomId.value,
     name: name.value,
-    path: pathObj.value[router.currentRoute.value.path],
-    gameName:gameName,
+    path: router.currentRoute.value.path,
     gameStatus: pathObj.value[router.currentRoute.value.path]==='index'?'over':recGameInfoStore.gameStatus,
+    orderPath:orderPath
   });
 }
 
@@ -207,7 +208,7 @@ onMounted(() => {
       let pathRoute = router.currentRoute.value.path
       console.log('当前路由', pathRoute)
       if (pathRoute !== '/studyBySelf/welcome') {
-        toPage('index')
+        toPage('/')
       }
     }, 500)
 
@@ -258,19 +259,19 @@ onMounted(() => {
   });
 
   // 收到的游戏状态
-  socket.on("receiveGameStatus", (gameName, gameStatus) => {
-    console.log('chat组件收到的游戏状态', gameName, gameStatus);
+  socket.on("receiveGameStatus", (path, gameStatus) => {
+    console.log('chat组件收到的游戏状态', path, gameStatus);
     if (gameStatus) {
       ElMessage.warning('房间正在有人游戏中')
     } else {
-      toPage(gameName)
+      toPage(path)
     }
   });
 
   // 接收更新用户数据命令
-  socket.on("receiveUpDateCommand", (gameName) => {
+  socket.on("receiveUpDateCommand", (path) => {
     console.log('接收更新用户数据命令')
-    sendUserInfo(gameName);
+    sendUserInfo(path);
   });
 
 });
