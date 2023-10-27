@@ -1,51 +1,50 @@
 <template>
-  <el-scrollbar :max-height="scrollbarHeight" v-show="connectionStatus==='inside'" ref="chatContent">
+  <el-scrollbar :max-height="scrollbarHeight" v-show="connectionStatus === 'inside'" ref="chatContent">
     <div ref="inChatContent">
       <p v-for="(item, index) in arr" :key="index">{{ item }}</p>
     </div>
 
   </el-scrollbar>
-  <h1 v-if="connectionStatus!=='inside'">Chat Rom</h1>
+  <h1 v-if="connectionStatus !== 'inside'">Chat Rom</h1>
   <h3>状态：{{ statusText[connectionStatus] }}</h3>
-  <h3 v-if="connectionStatus==='inside'">当前房间在线：{{ sameRoomUser }}</h3>
+  <h3 v-if="connectionStatus === 'inside'">当前房间在线：{{ sameRoomUser }}</h3>
   <el-form>
     <el-form-item label="昵称：">
-      <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus==='inside'"/>
+      <el-input v-model="name" placeholder="请输入你的昵称" :disabled="connectionStatus === 'inside'" />
     </el-form-item>
     <el-form-item label="房号：">
-      <el-input v-model="roomId" placeholder="请输入房间号" :disabled="connectionStatus==='inside'"/>
+      <el-input v-model="roomId" placeholder="请输入房间号" :disabled="connectionStatus === 'inside'" />
     </el-form-item>
-    <el-form-item label="内容：" v-if="connectionStatus==='inside'">
-      <el-input v-model="msg" placeholder="请输入聊天内容" @keydown.enter="clickSend"/>
+    <el-form-item label="内容：" v-if="connectionStatus === 'inside'">
+      <el-input v-model="msg" placeholder="请输入聊天内容" @keydown.enter="clickSend" />
     </el-form-item>
 
     <el-form-item label="">
-      <el-button type="primary" @click="clickJoin" v-if="connectionStatus==='success'">加入房间</el-button>
-      <el-button type="danger" @click="clickLeave" v-if="connectionStatus==='inside'">离开房间</el-button>
-      <el-button type="primary" @click="clickSend" v-if="connectionStatus==='inside'">发送消息</el-button>
-      <el-button type="danger" @click="clearMessage()" v-if="connectionStatus==='inside'">清空消息</el-button>
+      <el-button type="primary" @click="clickJoin" v-if="connectionStatus === 'success'">加入房间</el-button>
+      <el-button type="danger" @click="clickLeave" v-if="connectionStatus === 'inside'">离开房间</el-button>
+      <el-button type="primary" @click="clickSend" v-if="connectionStatus === 'inside'">发送消息</el-button>
+      <el-button type="danger" @click="clearMessage()" v-if="connectionStatus === 'inside'">清空消息</el-button>
 
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="reOpen" v-if="connectionStatus==='fail'">重新连接</el-button>
+      <el-button type="primary" @click="reOpen" v-if="connectionStatus === 'fail'">重新连接</el-button>
     </el-form-item>
-    <el-form-item >
-      <el-button v-if="router.currentRoute.value.path!=='/studyBySelf/welcome'" type="primary" @click="getGameStatus('/')">返回首页</el-button>
-      <el-button v-if="connectionStatus==='inside'" type="primary" @click="getGameStatus('/game/2048')">2048</el-button>
+    <el-form-item>
+      <el-button v-if="router.currentRoute.value.path !== '/studyBySelf/welcome'" type="primary"
+        @click="getGameStatus('/')">返回首页</el-button>
+      <el-button v-if="connectionStatus === 'inside'" type="primary" @click="getGameStatus('/game/2048')">2048</el-button>
     </el-form-item>
   </el-form>
-
-
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, reactive, ref, watch,computed} from "vue";
-import {ElMessage} from "element-plus";
+import { onMounted, onUnmounted, reactive, ref, watch, computed } from "vue";
+import { ElMessage } from "element-plus";
 import socketAct from '../hook/socketAct.ts'
-import {useRouter} from "vue-router";
-import {userInfoStore} from '@/store/userInfo.ts'
+import { useRouter } from "vue-router";
+import { userInfoStore } from '@/store/userInfo.ts'
 // 存储游戏数据
-import {gameDateStore} from "@/store/gameData.ts";
+import { gameDateStore } from "@/store/gameData.ts";
 
 const userInfo = userInfoStore();
 
@@ -73,7 +72,7 @@ const statusText = reactive({
   'success': '已连接'
 })
 
-watch(connectionStatus, (newVal, oldVal) => {
+watch(connectionStatus, (newVal) => {
   if (newVal === 'inside') {
     userInfo.changeVal('name', name.value);
     userInfo.changeVal('roomId', roomId.value);
@@ -119,13 +118,13 @@ const clickJoin = () => {
   arr.value.length = 0;
 
   getHistory(roomId.value)
-  socket.emit("join", {roomId: roomId.value, name: name.value});
+  socket.emit("join", { roomId: roomId.value, name: name.value });
 };
 
 // 点击离开房间
 const clickLeave = () => {
   console.log('点击离开')
-  socket.emit("leave", {roomId: roomId.value, name: name.value});
+  socket.emit("leave", { roomId: roomId.value, name: name.value });
   roomId.value = "";
 };
 
@@ -139,7 +138,7 @@ const scrollToBottom = () => {
 
 // 发送消息
 const clickSend = () => {
-  socket.emit("sendMsgByRoom", {roomId: roomId.value, name: name.value, msg: msg.value});
+  socket.emit("sendMsgByRoom", { roomId: roomId.value, name: name.value, msg: msg.value });
   msg.value = "";
 }
 
@@ -149,7 +148,7 @@ let toPageObj = {
 }
 
 let pathObj = computed({
-  get:()=>{
+  get: () => {
     const result = {};
 
     for (const [key, value] of Object.entries(toPageObj)) {
@@ -158,7 +157,8 @@ let pathObj = computed({
     return result;
   }
 })
-const toPage = (path: String) => {
+
+const toPage = (path: string) => {
 
   router.push({
     path: path,
@@ -170,7 +170,7 @@ const sameRoomUser = ref('')
 
 // 获取当前房间在线人数，先发送房间id
 const getOnlineNumber = () => {
-  socket.emit("sendRoomId", {roomId: roomId.value});
+  socket.emit("sendRoomId", { roomId: roomId.value });
 }
 
 const recGameInfoStore = gameDateStore();
@@ -190,8 +190,8 @@ const sendUserInfo = (orderPath) => {
     roomId: roomId.value,
     name: name.value,
     path: router.currentRoute.value.path,
-    gameStatus: pathObj.value[router.currentRoute.value.path]==='index'?'over':recGameInfoStore.gameStatus,
-    orderPath:orderPath
+    gameStatus: pathObj.value[router.currentRoute.value.path] === 'index' ? 'over' : recGameInfoStore.gameStatus,
+    orderPath: orderPath
   });
 }
 
@@ -278,6 +278,4 @@ onMounted(() => {
 
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

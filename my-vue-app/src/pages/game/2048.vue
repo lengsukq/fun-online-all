@@ -12,17 +12,20 @@
         {{ item }}
       </h5>
     </div>
-    <div class="game" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
-         @mousedown="onTouchStart" @mousemove="onTouchMove" @mouseup="onTouchEnd">
-      <!-- 背景布局 -->
-      <div class="game-bg">
-        <div class="item" v-for="i in 16" :key="i"></div>
-      </div>
+    <div v-loading="loading">
+      <div class="game" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
+           @mousedown="onTouchStart" @mousemove="onTouchMove" @mouseup="onTouchEnd">
+        <!-- 背景布局 -->
+        <div class="game-bg">
+          <div class="item" v-for="i in 16" :key="i"></div>
+        </div>
 
-      <div class="canvas" :key="setNumBlock">
-        <NumberBlock v-for="(v,i) in numberList" :key="v.uid" :item="v" @remove="removeNumber(i)"/>
+        <div class="canvas" :key="setNumBlock">
+          <NumberBlock v-for="(v,i) in numberList" :key="v.uid" :item="v" @remove="removeNumber(i)"/>
+        </div>
       </div>
     </div>
+
 
   </div>
 </template>
@@ -154,12 +157,13 @@ function addScore(num: number) {
 
 
 const gameInfo = reactive({});
-
+const loading = ref(true)
 // 初始化游戏
 function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
   recGameInfoStore.changeVal('gameStatus','gaming');
   setNumBlock.value += setNumBlock.value;
   userScore.value = {};
+  loading.value = false;
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
@@ -433,5 +437,8 @@ onUnmounted(() => {
   position: absolute;
   top: 10px;
   left: 10px;
+}
+/deep/.el-loading-mask{
+  z-index:10;
 }
 </style>

@@ -1,0 +1,18 @@
+{
+    "search.exclude": {
+        "**/node_modules": true,         
+        "**/bower_components": true,  //默认配置
+        "/arch/avr32" : true,         //被禁止搜寻的文件/文件夹
+        "**/.histories" :true,
+        "**/.idea":true
+    },
+    "files.exclude": {
+        "**/.idea":true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,  //默认配置
+        "arch/avr32" : true,   //被禁止看见的文件/文件夹
+    }
+}
