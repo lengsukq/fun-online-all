@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import {onUnmounted, reactive, ref} from 'vue'
+import {onUnmounted, reactive, ref,watch} from 'vue'
 import NumberBlock from '../studyBySelf/NumberBlock.vue'
 import socketAct from '../../hook/socketAct.ts'
 import {ElMessage} from "element-plus";
@@ -120,10 +120,19 @@ const moveNum = ref(0)
 // 行动步数
 const actStep = ref(10);
 const actStatus = ref('waiting')
-
+watch(actStep, (newVal) => {
+  if (newVal === 0) {
+      let index = userInfo.allPath.indexOf(actName.value)
+      console.log('下标为0',index,userInfo.allPath);
+      if(userInfo.allPath.length-1 === index){
+        actName.value = userInfo.allPath[0]
+      }else{
+        actName.value = userInfo.allPath[index]
+      }
+  }
+})
 
 const onTouchEnd = () => {
-  actStep.value--;
   switch (direction.value) {
     case 'right':
       right();
@@ -179,6 +188,7 @@ function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
   setNumBlock.value += setNumBlock.value;
   userScore.value = {};
   loading.value = false;
+  getGameStatus();
   uid = 0;
   score.value = 0;
   grid.forEach((v, i) => {
@@ -197,7 +207,6 @@ function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
     gameInfo['isInit'] = true;
     gameInfo['actStep'] = actStep.value;
     sendGameInfo(gameInfo)
-  getGameStatus();
 
   } else {
     random(recGameInfo.count1);
@@ -346,6 +355,7 @@ function update() {
   } else {
     isEnded();
   }
+  actStep.value--;
 }
 
 function isEnded() {
@@ -392,7 +402,8 @@ const recGameInfoStore = gameDateStore();
 recGameInfoStore.$subscribe((mutation, state) => {
   console.log('从主组件接收游戏数据recGameInfoStore', state.recGameInfo, mutation)
   let recGameInfo: any = state.recGameInfo;
-  actName.value = recGameInfo.name;
+  actName.value = actStep.value===0?actName.value:recGameInfo.name;
+ 
 
   if (recGameInfo.name !== name.value.toString()) {
     if (recGameInfo.isInit) {
@@ -411,6 +422,7 @@ recGameInfoStore.$subscribe((mutation, state) => {
   }
 })
 
+
 onUnmounted(() => {
   window.removeEventListener('keydown', listener)
   window.removeEventListener('beforeunload', () => {
@@ -420,7 +432,7 @@ onUnmounted(() => {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="less">
 .gameContainer {
   display: flex;
   flex-direction: column;

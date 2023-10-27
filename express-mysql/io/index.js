@@ -111,13 +111,17 @@ module.exports = function (server) {
                     roomInfo.gameRoom[roomId.toString()][orderPath] = []
                 }
             } else if (actType === 'getAllPath') {
+                if (roomInfo.gameRoom[roomId.toString()][path] instanceof Array) {
+                    if (!roomInfo.gameRoom[roomId.toString()][path].includes(name)) {
+                        roomInfo.gameRoom[roomId.toString()][path].push(name)
+
+                    }
+                } else {
+                    roomInfo.gameRoom[roomId.toString()][path] = [name];
+                }
                 if (roomInfo.userInfo.length === roomInfo.nameList[roomId].length) {
                     roomInfo.userInfo = [];
-                    if (roomInfo.gameRoom[roomId.toString()][path] instanceof Array) {
-                        roomInfo.gameRoom[roomId.toString()][path].push(name)
-                    } else {
-                        roomInfo.gameRoom[roomId.toString()][path] = [name];
-                    }
+
                     console.log('getAllPath传输数据', roomInfo.gameRoom[roomId.toString()][orderPath])
                     io.to(sendUserId).emit("receiveAllPath", orderPath, roomInfo.gameRoom[roomId.toString()][orderPath]);
                 }
