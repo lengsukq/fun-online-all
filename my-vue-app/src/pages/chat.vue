@@ -155,7 +155,10 @@ let pathObj = computed({
       result[value] = key;
     }
     return result;
-  }
+  },
+  set: (value) => {
+    return value
+  },
 })
 
 const toPage = (path: string) => {
