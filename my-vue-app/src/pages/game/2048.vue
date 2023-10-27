@@ -2,6 +2,10 @@
   <div class="gameContainer">
     <!--    基础信息-->
     <div>
+      <div class="slider-demo-block">
+    <span class="demonstration">行动步数:{{actStep}}{{ actStatus }}当前行动者：{{ actName }}</span>
+    <el-slider v-model="actStep" :step="5" show-stops />
+  </div>
       <el-button type="primary" @click="initGame">开始游戏</el-button>
       总分： {{ score }} <br>
       <h5 v-for="(socre,name) in userScore">
@@ -12,7 +16,7 @@
         {{ item }}
       </h5>
     </div>
-    <div v-loading="loading">
+    <div v-loading="loading" element-loading-background="rgba(122, 122, 122, 0.6)">
       <div class="game" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd"
            @mousedown="onTouchStart" @mousemove="onTouchMove" @mouseup="onTouchEnd">
         <!-- 背景布局 -->
@@ -25,8 +29,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -38,7 +40,7 @@ import {ElMessage} from "element-plus";
 import {userInfoStore} from '@/store/userInfo.ts'
 // 从主组件接收游戏数据
 import {gameDateStore} from "@/store/gameData.ts";
-
+import { useRouter } from "vue-router";
 const setNumBlock = ref(1)
 const socket = socketAct.socketInit();
 const roomId = ref(''), name = ref('');
@@ -49,12 +51,7 @@ roomId.value = <string>userInfo.roomId;
 name.value = <string>userInfo.name;
 
 const sendGameInfo = (data: object) => {
-  let gameInfo = {
-    name: name.value,
-    roomId: roomId.value,
-    gameInfo: data,
-  };
-  console.log('sendGameInfo', gameInfo)
+  console.log('sendGameInfo', data)
   socket.emit("sendGameInfo", {
     name: name.value,
     roomId: roomId.value,
@@ -81,6 +78,7 @@ const onTouchStart = (event) => {
   }
 
 }
+
 
 const direction = ref('')
 const onTouchMove = (event) => {
@@ -110,9 +108,22 @@ const onTouchMove = (event) => {
   }
 }
 
+const router = useRouter();
+const getGameStatus = () => {
+  socket.emit("sendGameStatus", {
+    roomId: roomId.value,
+    path: router.currentRoute.value.path,
+    actType: 'getAllPath',
+  });
+}
 const moveNum = ref(0)
+// 行动步数
+const actStep = ref(10);
+const actStatus = ref('waiting')
+
 
 const onTouchEnd = () => {
+  actStep.value--;
   switch (direction.value) {
     case 'right':
       right();
@@ -132,6 +143,10 @@ const onTouchEnd = () => {
       break;
     case '':
       break;
+  }
+
+  if(actStep.value===0){
+    actStatus.value = 'other';
   }
 }
 
@@ -180,7 +195,10 @@ function initGame(isNewGame = true, recGameInfo = {count1: 0, count2: 0}) {
       gameInfo[`count${i}`] = num;
     }
     gameInfo['isInit'] = true;
+    gameInfo['actStep'] = actStep.value;
     sendGameInfo(gameInfo)
+  getGameStatus();
+
   } else {
     random(recGameInfo.count1);
     random(recGameInfo.count2);
@@ -321,7 +339,7 @@ function update() {
     if (!isReceive) {
       let num = Math.floor(Math.random() * 16);
       random(num);
-      sendGameInfo({moveNum: num, direction: direction.value})
+      sendGameInfo({moveNum: num, direction: direction.value,name:name.value})
     } else {
       random(moveNum.value);
     }
@@ -338,7 +356,8 @@ function isEnded() {
       }
     }
   }
-  recGameInfoStore.gameStatus.changeVal('gameStatus','over');
+  recGameInfoStore.changeVal('gameStatus','over');
+  actStatus.value = 'waiting';
   ElMessage.info('您的得分是：' + score.value + '分')
 }
 
@@ -369,24 +388,26 @@ function listener(e) {
   update();
   return false;
 }
-
 const recGameInfoStore = gameDateStore();
-console.log('从主组件接收游戏数据recGameInfoStore', recGameInfoStore.recGameInfo)
 recGameInfoStore.$subscribe((mutation, state) => {
-  console.log('recGameInfoStore.$subscribe', state.recGameInfo, mutation)
+  console.log('从主组件接收游戏数据recGameInfoStore', state.recGameInfo, mutation)
   let recGameInfo: any = state.recGameInfo;
   actName.value = recGameInfo.name;
 
   if (recGameInfo.name !== name.value.toString()) {
     if (recGameInfo.isInit) {
       isReceive = true;
-      initGame(false, recGameInfo)
+      initGame(false, recGameInfo);
+      actStep.value = recGameInfo.actStep;
+      actStatus.value = 'other';
     } else {
       isReceive = true;
       direction.value = recGameInfo.direction;
       moveNum.value = recGameInfo.moveNum;
       onTouchEnd();
     }
+  }else{
+    actStatus.value = 'me';
   }
 })
 

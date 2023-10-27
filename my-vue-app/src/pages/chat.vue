@@ -185,16 +185,17 @@ const getGameStatus = (path: string) => {
   socket.emit("sendGameStatus", {
     roomId: roomId.value,
     path: path,
-    actType: 'getInfo',
+    actType: 'joinRoom',
   });
 }
-const sendUserInfo = (orderPath) => {
+const sendUserInfo = (orderPath,actType) => {
   socket.emit("sendUserInfo", {
     roomId: roomId.value,
     name: name.value,
     path: router.currentRoute.value.path,
     gameStatus: pathObj.value[router.currentRoute.value.path] === 'index' ? 'over' : recGameInfoStore.gameStatus,
-    orderPath: orderPath
+    orderPath: orderPath,
+    actType:actType
   });
 }
 
@@ -272,11 +273,15 @@ onMounted(() => {
   });
 
   // 接收更新用户数据命令
-  socket.on("receiveUpDateCommand", (path) => {
+  socket.on("receiveUpDateCommand", (path,actType) => {
     console.log('接收更新用户数据命令')
-    sendUserInfo(path);
+    sendUserInfo(path,actType);
   });
-
+  // 收到的当前路由用户名称
+  socket.on("receiveAllPath", (orderPath, allPath) => {
+    console.log('chat组件收到的收到的当前路由用户名称', orderPath, allPath);
+    userInfo.changeVal("allPath",allPath)
+  });
 });
 
 </script>

@@ -8,7 +8,7 @@ export const gameDateStore = defineStore('gameDate', {
     // 也可以这样定义
     // state: () => ({ count: 0 })
     actions: {
-        changeVal(keyWords,val){
+        changeVal(keyWords:string,val:any){
             console.log('setName',keyWords,val)
             this[keyWords] = val;
         }
