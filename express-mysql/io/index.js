@@ -114,7 +114,6 @@ module.exports = function (server) {
                 if (roomInfo.gameRoom[roomId.toString()][path] instanceof Array) {
                     if (!roomInfo.gameRoom[roomId.toString()][path].includes(name)) {
                         roomInfo.gameRoom[roomId.toString()][path].push(name)
-
                     }
                 } else {
                     roomInfo.gameRoom[roomId.toString()][path] = [name];
