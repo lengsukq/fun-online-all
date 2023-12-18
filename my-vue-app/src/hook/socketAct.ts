@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 
 
 function socketInit(){
-    return  io("http://127.0.0.1:3000", {
+    return  io("http://10.147.18.216:3030", {
         timeout: 5000,
     });
 }

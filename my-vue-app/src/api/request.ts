@@ -2,7 +2,7 @@ import axios from "axios";
 import {ElMessage} from 'element-plus'
 
 const service = axios.create({
-    baseURL: 'http://127.0.0.1:3000', // url = base url + request url
+    baseURL: 'http://10.147.18.216:3030/', // url = base url + request url
     timeout: 30000,// request timeout
     // withCredentials:true
 })

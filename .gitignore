@@ -2,3 +2,4 @@
 /express-mysql/log/
 /express-mysql/yarn-error.log
 .history
+/.idea/jsLibraryMappings.xml
