@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8ef99ed7-a33d-4773-8555-4444464882f1" name="更改" comment="更新readme">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="8ef99ed7-a33d-4773-8555-4444464882f1" name="更改" comment="更新readme" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,7 +58,7 @@
       <workItem from="1704262506871" duration="510000" />
       <workItem from="1704353288076" duration="1000" />
       <workItem from="1704933286319" duration="13000" />
-      <workItem from="1708918899603" duration="424000" />
+      <workItem from="1708918899603" duration="1461000" />
     </task>
     <task id="LOCAL-00001" summary="优化项目结构">
       <option name="closed" value="true" />
@@ -102,7 +100,15 @@
       <option name="project" value="LOCAL" />
       <updated>1708919185477</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="更新readme">
+      <option name="closed" value="true" />
+      <created>1708919529651</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1708919529651</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

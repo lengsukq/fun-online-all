@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import {onBeforeMount, reactive, ref} from 'vue'
+import {onBeforeMount, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import { showNotify } from 'vant';
 import apiHttp from "@/api/api.ts";
 const router = useRouter();
 const checked = ref(false);
-const webNavList = ref([
-  {name: 'Lengの博客', path: 'http://blog.honghupetrel.fun/', icon: 'halo.png'},
-  {name: 'Fun-Online', path: '/studyBySelf', icon: 'fun-online.png'},
-  {name: 'SPlayer', path: 'http://transit.honghupetrel.fun:3840/', icon: 'splayer.png'},
-  {name: 'drawio', path: 'http://drawio.honghupetrel.fun/', icon: 'drawio.png'},
-  {name: '小雅Alist', path: 'http://transit.honghupetrel.fun:3963/', icon: 'xiaoyaalist.png'},
-  {name: 'FileCodeBox', path: 'http://transit.honghupetrel.fun:3880/', icon: 'filecodebox.png'},
-  {name: 'phpmyadmin', path: 'http://transit.honghupetrel.fun:4008/', icon: 'phpmyadmin.png'},
-  {name: 'LengのCode', path: 'https://github.com/lengsukq', icon: 'github.png'},
-])
+const webNavList = ref([])
 const adminWebNavList = ref([])
 
 const getImageUrl = (name) => new URL(`../assets/webIcon/${name}`, import.meta.url).href;
@@ -102,14 +93,14 @@ onBeforeMount(() => {
 
     </van-grid-item>
     <van-grid-item v-for="item in webNavList" :key="item.name" @click="toPage(item)">
-      <van-image :src="getImageUrl(item.icon)"/>
+      <van-image :src="item.iconURL?item.iconURL:getImageUrl(item.icon)"/>
       <div class="itemName">{{ item.name }}</div>
     </van-grid-item>
 
   </van-grid>
   <van-grid :column-num="3" v-if="isAdmin">
     <van-grid-item v-for="item in adminWebNavList" :key="item.name" @click="toPage(item)">
-      <van-image :src="getImageUrl(item.icon)"/>
+      <van-image :src="item.iconURL?item.iconURL:getImageUrl(item.icon)"/>
       <div class="itemName">{{ item.name }}</div>
     </van-grid-item>
   </van-grid>
