@@ -41,7 +41,7 @@ router.get('/nav-list', function (req, res, next) {
             let newData=[]
             result.forEach(item=>{
                 if (item.projectName!=='fun-online'){
-                    newData.push({name: item.projectName, path: `http://${item.projectURL}`, icon: item.icon})
+                    newData.push({name: item.projectName, path: `http://${item.projectURL}`, icon: item.icon,iconURL:item.iconURL})
                 }else{
                     newData.push({name: item.projectName, path: `/studyBySelf`, icon: item.icon})
                 }

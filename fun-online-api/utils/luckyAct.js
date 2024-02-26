@@ -3,7 +3,7 @@ const axios = require('axios');
 const mysql = require("mysql");
 require('dotenv').config({path: `../.env.local`})
 const getList = async (token) => {
-    await axios.get(`${process.env.Lucky_APIIP}/api/stunrulelist`, {
+    await axios.get(`${process.env.LUCKY_APIIP}/api/stunrulelist`, {
         headers: {
             'Authorization': `${token}`
         },
@@ -13,30 +13,58 @@ const getList = async (token) => {
             // console.log('成功获取数据：', response.data);
             let project = [];
             response.data.list.forEach(item => {
-                // 内网穿透配置名称
-                if (item.Name === 'fun-online') {
-                    aliddns({
-                        "DomainName": "honghupetrel.fun",
-                        "RecordId": '869590194016073728',
-                        "RR": "nav",
-                        "Type": "REDIRECT_URL",
-                        "Value": `http://transit.honghupetrel.fun:${item.PublicAddr.split(':')[1]}`
-                    });
-                    aliddns({
-                        "DomainName": "honghupetrel.fun",
-                        "RecordId": '869722673439928320',
-                        "RR": "transit",
-                        "Type": "A",
-                        "Value": `${item.PublicAddr.split(':')[0]}`
-                    });
-                } else if (item.Name === 'fun-online-api') {
-                    setFunOnlineApi(item.PublicAddr)
+                    // 内网穿透配置名称
+                    if (item.Name === 'fun-online') {
+                        aliddns({
+                            "DomainName": "honghupetrel.fun",
+                            "RecordId": '869590194016073728',
+                            "RR": "nav",
+                            "Type": "REDIRECT_URL",
+                            "Value": `http://transit.honghupetrel.fun:${item.PublicAddr.split(':')[1]}`
+                        });
+                        aliddns({
+                            "DomainName": "honghupetrel.fun",
+                            "RecordId": '869722673439928320',
+                            "RR": "transit",
+                            "Type": "A",
+                            "Value": `${item.PublicAddr.split(':')[0]}`
+                        });
+                    } else if (item.Name === 'fun-online-api') {
+                        // setFunOnlineApi(item.PublicAddr)
+                        // 修改指向ip地址
+                        setCloudflareInfo('put',
+                            {
+                                content: item.PublicAddr.split(':')[0],
+                                name: "to.lengsu.top",
+                                proxied: false,
+                                type: "A",
+                                comment: "",
+                                tags: [],
+                                ttl: 1
+                            },
+                            'https://api.cloudflare.com/client/v4/zones/050d6b0bddb33ad75e97ee61361e1909/dns_records/df20e33d2cceafd287afe2f11fb0ab58'
+                        )
+                        // 修改funapi指向端口
+                        setCloudflareInfo('patch',{
+                                "expression": "(http.host eq \"funapi.lengsu.top\")",
+                                "description": "funapi",
+                                "action": "route",
+                                "action_parameters": {
+                                    "origin": {
+                                        "port": Number(item.PublicAddr.split(':')[1])
+                                    }
+                                }
+                            },
+                            'https://api.cloudflare.com/client/v4/zones/050d6b0bddb33ad75e97ee61361e1909/rulesets/943d61a4472f4682b43740125886f960/rules/4ca29f8df67f4cf98d5960951a02b480'
+                        )
+                    }
+
+                    project.push({
+                        projectURL: item.PublicAddr,
+                        projectName: item.Name
+                    })
                 }
-                project.push({
-                    projectURL: item.PublicAddr,
-                    projectName: item.Name
-                })
-            })
+            )
             console.log('project', project);
             mysqlAct(project);
         })
@@ -46,9 +74,9 @@ const getList = async (token) => {
         });
 }
 const postData = async () => {
-    const apiUrl = process.env.Lucky_APIIP + "/api/login"; // 请将URL替换为实际的API接口URL
+    const apiUrl = process.env.LUCKY_APIIP + "/api/login"; // 请将URL替换为实际的API接口URL
     console.log('postData', apiUrl)
-    await axios.post(apiUrl, {"Account": "Queen_Su", "Password": "admin11422", "TwoFA": ""}, {
+    await axios.post(apiUrl, {"Account": process.env.LUCKY_ACCOUNT, "Password": process.env.LUCKY_PASSWORD, "TwoFA": ""}, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -138,8 +166,25 @@ const setFunOnlineApi = (url) => {
     });
 
 }
-// aliddns();
+const setCloudflareInfo = (reqType,data, url) => {
+    axios[reqType](url, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            // 根据 Cloudflare API 要求，您可能需要在请求头中提供认证信息（例如 API 密钥）
+            'Authorization': `Bearer ${process.env.CLOUDFLARE_API}`,
+        }
+    })
+        .then(response => {
+            console.log('请求成功', response.data);
+        })
+        .catch(error => {
+            console.error('请求失败', error);
+        });
+}
 
-// 发起请求获取数据
-postData().then(r => {});
+// aliddns();
 // setFunOnlineApi();
+// setCloudflareDNS();
+// 发起请求获取数据
+postData().then(r => {
+});
