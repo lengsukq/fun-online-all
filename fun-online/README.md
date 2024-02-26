@@ -7,11 +7,11 @@
 - 自写的导航站，连接fun-online-api的接口，动态获取数据
  
 
-# 根目录添加.env.local文件
+### 根目录添加.env.local文件
 ```text
 VITE_API=https://XXXXX （你的服务器后台地址）
 ```
-# 项目运行
+### 项目运行
 
 ```
 yarn
