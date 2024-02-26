@@ -1,10 +1,10 @@
 # Fun-Online-ALL
 Vue+NodeJS 全栈项目
-# [Fun-Online]([README.md](fun-online%2FREADME.md))
+# [Fun-Online](./fun-online/README.md)
 使用vite+Vue3+TypeScript <br>
 使用UI框架：element-plus、Vant4<br> 
 
-# [Fun-Online-Api]([readme.md](fun-online-api%2Freadme.md))
+# [Fun-Online-Api](./fun-online-api/README.md)
 使用Express+Mysql
 
 # 主要功能（已开发）
