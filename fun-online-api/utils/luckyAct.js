@@ -30,7 +30,7 @@ const getList = async (token) => {
                             "Value": `${item.PublicAddr.split(':')[0]}`
                         });
                     } else if (item.Name === 'fun-online-api') {
-                        // setFunOnlineApi(item.PublicAddr)
+                        setFunOnlineApi(`http://${item.PublicAddr}`)
                         // 修改指向ip地址
                         setCloudflareInfo('put',
                             {
