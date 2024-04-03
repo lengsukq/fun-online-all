@@ -8,43 +8,49 @@ router.get('/fun-admin', function (req, res, next) {
     const data = req.query;
     console.log(data.adminPassWord)
     if (data.hasOwnProperty('adminPassWord') && data.adminPassWord === 'lovehaifei') {
-        executeQuery({query:'select * from projectdata WHERE isAdmin =1'}).then(result => {
+        executeQuery({query: 'select * from projectdata WHERE isAdmin =1 AND isEnable = 1'}).then(result => {
             if (result.err) {
-                console.log('err',result.err)
+                console.log('err', result.err)
                 res.send(BizResult.fail(result.err))
             } else {
-                let newData=[]
-                result.forEach(item=>{
-                    if (item.projectName!=='fun-online'){
-                        newData.push({name: item.projectName, path: `http://${item.projectURL}`, icon: item.icon})
-                    }else{
-                        newData.push({name: item.projectName, path: `/studyBySelf`, icon: item.icon})
-                    }
+                let newData = []
+                result.forEach(item => {
+                    newData.push({
+                        name: item.projectName,
+                        path: item.luckyURL ? item.luckyURL : item.projectURL,
+                        luckyURL: item.luckyURL,
+                        ipv6URL: item.ipv6URL,
+                        icon: item.icon,
+                        iconURL: item.iconURL
+                    })
                 })
                 // 将 MySQL 查询结果作为路由返回值
-                res.send(BizResult.success(newData,'验证成功'))
+                res.send(BizResult.success(newData, '验证成功'))
             }
         })
     } else {
-        res.send(BizResult.fail({},'验证失败'))
+        res.send(BizResult.fail({}, '验证失败'))
 
     }
 });
 router.get('/nav-list', function (req, res, next) {
 
     // const data = req.query;
-    executeQuery({query:'select * from projectdata WHERE isAdmin =0'}).then(result => {
+    executeQuery({query: 'select * from projectdata WHERE isAdmin =0 AND isEnable = 1'}).then(result => {
         if (result.err) {
-            console.log('err',result.err)
+            console.log('err', result.err)
             res.send(BizResult.fail(result.err))
         } else {
-            let newData=[]
-            result.forEach(item=>{
-                if (item.projectName!=='fun-online'){
-                    newData.push({name: item.projectName, path: `http://${item.projectURL}`, icon: item.icon,iconURL:item.iconURL})
-                }else{
-                    newData.push({name: item.projectName, path: `/studyBySelf`, icon: item.icon})
-                }
+            let newData = []
+            result.forEach(item => {
+                newData.push({
+                    name: item.projectName,
+                    path: item.luckyURL ? item.luckyURL : item.projectURL,
+                    luckyURL: item.luckyURL,
+                    ipv6URL: item.ipv6URL,
+                    icon: item.icon,
+                    iconURL: item.iconURL
+                })
             })
 
             // 将 MySQL 查询结果作为路由返回值

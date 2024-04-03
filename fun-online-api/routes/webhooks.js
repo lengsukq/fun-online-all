@@ -26,7 +26,7 @@ const commonGitPull = (req, res, command) => {
 }
 
 router.post('/fun-online', (req, res) => {
-    commonGitPull(req, res, 'cd /home/leng/code/fun-online && git pull && yarn build && pm2 reload fun');
+    commonGitPull(req, res, 'cd /home/leng/code/fun-online && git pull && yarn build');
 });
 router.post('/fun-online-api', (req, res) => {
     commonGitPull(req, res, 'cd /home/leng/code/fun-online-api && git pull');

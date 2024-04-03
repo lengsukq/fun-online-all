@@ -30,7 +30,7 @@ const getList = async (token) => {
                             "Value": `${item.PublicAddr.split(':')[0]}`
                         });
                     } else if (item.Name === 'fun-online-api') {
-                        setFunOnlineApi(`http://${item.PublicAddr}`)
+                        // setFunOnlineApi(item.PublicAddr)
                         // 修改指向ip地址
                         setCloudflareInfo('put',
                             {
@@ -60,6 +60,7 @@ const getList = async (token) => {
                     }
 
                     project.push({
+                        isEnable: item.Enable,
                         projectURL: item.PublicAddr,
                         projectName: item.Name
                     })
@@ -106,11 +107,11 @@ const mysqlAct = (projects) => {
 
     connection.connect();
     // 构建 INSERT INTO 语句
-    const insertQuery = 'INSERT INTO projectdata (projectURL, projectName) VALUES ? ON DUPLICATE KEY UPDATE projectURL = VALUES(projectURL);';
+    const insertQuery = 'INSERT INTO projectdata (luckyURL, projectName,isEnable) VALUES ? ON DUPLICATE KEY UPDATE luckyURL = VALUES(luckyURL), isEnable = VALUES(isEnable);';
 
     // 将项目数据转换为二维数组
-    const values = projects.map(project => [project.projectURL, project.projectName]);
-    // console.log('将项目数据转换为二维数组',[values,values[1]])
+    const values = projects.map(project => ['http://'+project.projectURL, project.projectName,project.isEnable]);
+    console.log('将项目数据转换为二维数组',[values,values[1]])
     // 执行插入操作
     connection.query(insertQuery, [values], (error, results) => {
         if (error) {
